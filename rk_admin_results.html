@@ -498,6 +498,18 @@ input:focus,select:focus,textarea:focus{box-shadow:none; border-color:var(--colo
 .photo-view .cap{font:600 26px/1.2 var(--font-heading); text-align:center;}
 .photo-view button{min-height:54px; padding:0 30px; font:600 20px var(--font-heading); background:transparent; color:#fff; border:1px solid #fff; cursor:pointer;}
 
+/* fix: แถบล่างหลุดจอ — ล็อกไว้ที่ขอบล่างของจอเสมอ และกันตัวหน้าเลื่อนเอง */
+html,body{height:100%; overflow:hidden; overscroll-behavior:none;}
+body{position:fixed; inset:0; height:auto;}
+.scroll-area{position:absolute; top:0; left:0; right:0; bottom:calc(62px + env(safe-area-inset-bottom)); padding-top:calc(16px + env(safe-area-inset-top)); overscroll-behavior:contain;}
+.bottom-nav{position:fixed !important; left:0; right:0; bottom:0; height:calc(62px + env(safe-area-inset-bottom)); padding-bottom:env(safe-area-inset-bottom); z-index:40;}
+.bottom-nav .bn-item{min-height:62px;}
+.admin-topbar{padding:12px 16px; margin-bottom:16px;}
+
+.admin-nav #nav-feedback,.admin-nav a:not([id]){display:none !important;}
+.admin-nav{width:100%; display:grid !important; grid-template-columns:1fr 1fr; gap:0 !important; border:1px solid var(--color-accent-700);}
+.admin-nav a{text-align:center; padding:10px 8px !important; font-size:15px !important; min-height:44px;}
+body.tab-feedback .admin-nav{display:none !important;}
 .res-list{display:flex; flex-direction:column; gap:22px; margin-top:6px;}
 .res-card{position:relative; border:1px solid var(--color-divider);}
 .res-card.first{border:2px solid var(--warm-500); background:var(--warm-100);}
@@ -906,10 +918,7 @@ function renderRaw(){
     <div class="card">
       <div class="sec-head">
         <div><div class="sec-title">ข้อมูลดิบรายบุคคล</div><div class="sec-sub">ใครโหวตเซทไหน อันดับที่เท่าไร มาจากหน่วยงาน/จุดใด — 1 แถว ต่อ 1 รายการที่เลือก</div></div>
-        <div style="display:flex; gap:6px; margin-left:auto;">
-          <button class="btn-small primary" onclick="downloadRawCsv()">ดาวน์โหลด CSV</button>
-          <button class="btn-small danger" onclick="deleteRawVotes()">ลบข้อมูลที่กรองไว้</button>
-        </div>
+        <button class="btn-small primary" style="margin-left:auto;" onclick="downloadRawCsv()">ดาวน์โหลด CSV</button>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <select id="rawFilterLoc" style="flex:1; min-width:180px;">${locOptions}</select>
@@ -943,33 +952,6 @@ function downloadRawCsv(){
   a.href = url; const fLoc = state.allLocations.find(l=>String(l.id)===String(state.rawLocationFilter));
   a.download = `ข้อมูลดิบการโหวต${fLoc?'_'+fLoc.short_name:'_ทุกกลุ่ม'}_${new Date().toISOString().slice(0,10)}.csv`;
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-}
-async function deleteRawVotes(){
-  const count = state.rawVotes.length;
-  if(!count){ alert('ไม่มีข้อมูลตามเงื่อนไขตัวกรองที่เลือกอยู่ให้ลบ'); return; }
-  if(!confirm(`กำลังจะลบข้อมูลดิบ ${count} รายการ — เฉพาะรายการที่ตรงกับตัวกรองที่เลือกอยู่ตอนนี้ (เหมือนที่เห็นในตารางด้านล่าง)\n\nกรุณากด "ดาวน์โหลด CSV" เก็บสำรองไว้ก่อนเสมอ เพราะลบแล้วกู้คืนไม่ได้\n\nดาวน์โหลดสำรองไว้แล้ว ต้องการลบต่อหรือไม่?`)) return;
-  const typed = prompt(`เพื่อยืนยันการลบ ${count} รายการนี้ (ไม่สามารถกู้คืนได้) กรุณาพิมพ์คำว่า ลบ แล้วกดตกลง`);
-  if(typed !== 'ลบ'){ alert('ยกเลิกการลบแล้ว (ข้อความยืนยันไม่ตรง)'); return; }
-
-  const ids = state.rawVotes.map(v=>v.id);
-  const CHUNK = 200;
-  let deleted = 0;
-  for(let i=0; i<ids.length; i+=CHUNK){
-    const chunk = ids.slice(i, i+CHUNK);
-    const { error } = await sb.from('rk_votes').delete().in('id', chunk);
-    if(error){
-      if(error.code === '23503'){
-        alert(`ลบไปแล้ว ${deleted} รายการ แล้วลบต่อไม่ได้ เพราะมีข้อมูลอื่นอ้างอิงรายการที่เหลืออยู่ กรุณาติดต่อผู้ดูแลระบบ`);
-      }else{
-        alert(`ลบไปแล้ว ${deleted} รายการ แล้วเกิดข้อผิดพลาด: ${error.message}`);
-      }
-      await loadRawVotes(); render();
-      return;
-    }
-    deleted += chunk.length;
-  }
-  alert(`ลบข้อมูลดิบสำเร็จ ${deleted} รายการ`);
-  await loadRawVotes(); render();
 }
 
 /* ---------------- Feedback tab ---------------- */
