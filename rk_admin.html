@@ -492,6 +492,14 @@ input:focus,select:focus,textarea:focus{box-shadow:none; border-color:var(--colo
 .photo-view .cap{font:600 26px/1.2 var(--font-heading); text-align:center;}
 .photo-view button{min-height:54px; padding:0 30px; font:600 20px var(--font-heading); background:transparent; color:#fff; border:1px solid #fff; cursor:pointer;}
 
+/* fix: แถบล่างหลุดจอ — ล็อกไว้ที่ขอบล่างของจอเสมอ และกันตัวหน้าเลื่อนเอง */
+html,body{height:100%; overflow:hidden; overscroll-behavior:none;}
+body{position:fixed; inset:0; height:auto;}
+.scroll-area{position:absolute; top:0; left:0; right:0; bottom:calc(62px + env(safe-area-inset-bottom)); padding-top:calc(16px + env(safe-area-inset-top)); overscroll-behavior:contain;}
+.bottom-nav{position:fixed !important; left:0; right:0; bottom:0; height:calc(62px + env(safe-area-inset-bottom)); padding-bottom:env(safe-area-inset-bottom); z-index:40;}
+.bottom-nav .bn-item{min-height:62px;}
+.admin-topbar{padding:12px 16px; margin-bottom:16px;}
+.admin-nav{display:none !important;}
 /* ตารางทุกตารางในหลังบ้าน แสดงเป็นการ์ดรายการ อ่านง่ายทุกขนาดจอ */
 .table-scroll{overflow:visible !important; border:none !important;}
 .data-table{display:block; width:100%; min-width:0 !important; border-collapse:separate;}
@@ -746,15 +754,7 @@ async function toggleVendorActive(id, val){
 async function deleteVendor(id){
   if(!confirm('ลบร้านนี้ พร้อมเซทเมนูทั้งหมดของร้าน?')) return;
   const { error } = await sb.from('rk_vendors').delete().eq('id', id);
-  if(error){
-    if(error.code === '23503'){
-      if(confirm('ลบร้านนี้ไม่ได้ เพราะเคยถูกใช้ในตารางหมุนเวียน/มีผลโหวตอ้างอิงอยู่ ลบจริงจะทำให้ข้อมูลเก่าพัง\n\nต้องการ "ปิดใช้งาน" ร้านนี้แทนไหม? (ร้านจะไม่โผล่ให้เลือกอีก แต่ประวัติเก่ายังอยู่ครบ)')){
-        await toggleVendorActive(id, false);
-      }
-      return;
-    }
-    alert('ผิดพลาด: '+error.message); return;
-  }
+  if(error){ alert('ผิดพลาด: '+error.message); return; }
   await boot();
 }
 
@@ -810,15 +810,7 @@ async function toggleSetActive(id, val){
 async function deleteSet(id){
   if(!confirm('ลบเซทเมนูนี้?')) return;
   const { error } = await sb.from('rk_menu_sets').delete().eq('id', id);
-  if(error){
-    if(error.code === '23503'){
-      if(confirm('ลบเซทเมนูนี้ไม่ได้ เพราะเคยมีคนโหวตเซทนี้ไปแล้ว ลบจริงจะทำให้ประวัติผลโหวตพัง\n\nต้องการ "ซ่อน" เซทนี้แทนไหม? (จะไม่โผล่ให้เลือกเปิดโหวตรอบใหม่ แต่ประวัติเก่ายังอยู่ครบ)')){
-        await toggleSetActive(id, false);
-      }
-      return;
-    }
-    alert('ผิดพลาด: '+error.message); return;
-  }
+  if(error){ alert('ผิดพลาด: '+error.message); return; }
   await loadMenuSets(); render();
 }
 
