@@ -366,6 +366,7 @@ input:focus,select:focus,textarea:focus{box-shadow:none; border-color:var(--colo
 .btn-small.primary{background:var(--color-accent); border-color:var(--color-accent); color:var(--color-bg);}
 .btn-small.primary:hover{background:var(--color-accent-600);}
 .btn-small.danger{border-color:var(--warm-300); color:var(--warm-700);}
+.btn-small:disabled{opacity:.45; cursor:not-allowed;}
 .link-btn{color:var(--color-accent-700); font-size:15px;}
 .note{font-size:14px; color:var(--color-neutral-700);}
 .error{border-radius:0; color:var(--warm-900); background:var(--warm-100); border:1px solid var(--warm-500); font-size:15px;}
@@ -597,6 +598,10 @@ body.tab-feedback .admin-nav{display:none !important;}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 9 9 0 0 1-3.3-.6L3 21l1.7-4.1A8.4 8.4 0 1 1 21 11.5Z"/></svg>
     <span>ข้อความ</span>
   </a>
+  <a href="dashboard.html" class="bn-item" id="bn-survey">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8Z"/></svg>
+    <span>ประเมิน</span>
+  </a>
 </div>
 
 <script>
@@ -661,6 +666,7 @@ let state = {
   feedback: [], replyDrafts: {},
   allSchedule: [], allSets: [],
   rawLocationFilter: '', rawScheduleFilter: '', rawMealFilter: '', rawDishFilter: '', rawVotes: [],
+  delFrom: '', delTo: '', delPreview: null, delBusy: false,
   loading: true, error:'',
 };
 
@@ -928,12 +934,93 @@ function renderRaw(){
       </div>
     </div>
     <div class="card">
+      <div class="sec-head">
+        <div><div class="sec-title">ลบข้อมูลการโหวตตามช่วงวันที่</div><div class="sec-sub">ลบตามวันที่โหวต (เวลาไทย) และใช้ตัวกรองจุดบริการ / สัปดาห์ / มื้อ / หมวด ด้านบนร่วมด้วย — ลบแล้วกู้คืนไม่ได้ แนะนำดาวน์โหลด CSV เก็บไว้ก่อน</div></div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:150px;"><div class="field-label" style="font-size:14px;">ตั้งแต่วันที่</div><input type="date" id="delFrom" value="${state.delFrom}"></div>
+        <div style="flex:1; min-width:150px;"><div class="field-label" style="font-size:14px;">ถึงวันที่</div><input type="date" id="delTo" value="${state.delTo}"></div>
+      </div>
+      ${state.delPreview!==null ? `<div class="${state.delPreview.ids.length?'error':'info-box'}" style="margin-top:4px;">${state.delPreview.ids.length ? `พบ ${state.delPreview.ids.length} รายการ (${state.delPreview.voters} คน) ในช่วง ${fmtDate(state.delFrom)} – ${fmtDate(state.delTo)} · ${delScopeText()}` : 'ไม่พบข้อมูลการโหวตในช่วงวันที่และตัวกรองที่เลือก'}</div>` : ''}
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn-small" onclick="previewDeleteVotes()" ${state.delBusy?'disabled':''}>ตรวจสอบจำนวนที่จะลบ</button>
+        <button class="btn-small danger" onclick="deleteVotesByRange()" ${state.delBusy||!(state.delPreview&&state.delPreview.ids.length)?'disabled':''}>${state.delBusy?'กำลังลบ...':'ลบข้อมูลการโหวต'}</button>
+      </div>
+    </div>
+    <div class="card">
       <div class="sec-title" style="margin-bottom:12px;">ทั้งหมด ${state.rawVotes.length} รายการ (${new Set(state.rawVotes.map(v=>v.voter_key)).size} คน)</div>
       <div class="table-scroll"><table class="data-table">
         <thead><tr><th>เวลาโหวต</th><th>ชื่อ-นามสกุล</th><th>หน่วยงาน</th><th>จุดบริการ</th><th>ร้าน</th><th>สัปดาห์บริการ</th><th>มื้ออาหาร</th><th>หมวด</th><th>อันดับ</th><th>เซทเมนูที่เลือก</th></tr></thead>
         <tbody>${rows || '<tr><td colspan="10" class="empty-state">ไม่มีข้อมูลตามเงื่อนไขที่เลือก</td></tr>'}</tbody>
       </table></div>
     </div>`;
+}
+function delScopeText(){
+  const parts = [];
+  const l = state.allLocations.find(x=>String(x.id)===String(state.rawLocationFilter));
+  parts.push(l ? locLabel(l) : 'ทุกจุดบริการ');
+  const sc = state.allSchedule.find(x=>String(x.id)===String(state.rawScheduleFilter));
+  parts.push(sc ? 'สัปดาห์ '+fmtDate(sc.service_week_start)+'–'+fmtDate(sc.service_week_end) : 'ทุกสัปดาห์');
+  parts.push(state.rawMealFilter ? MEAL_LABELS[state.rawMealFilter] : 'ทุกมื้อ');
+  parts.push(state.rawDishFilter ? DISH_LABELS[state.rawDishFilter] : 'ทุกหมวด');
+  return parts.join(' · ');
+}
+// หาแถวที่จะลบ: ช่วงวันที่ (เวลาเครื่อง = เวลาไทย) + ตัวกรองข้อมูลดิบที่เลือกอยู่ — กรองมื้อ/หมวดฝั่งเครื่องเพื่อให้แถวเก่าที่เป็น null (= lunch/savory) ถูกนับตรงกับที่แสดง
+async function fetchDeleteTargets(){
+  const from = new Date(state.delFrom+'T00:00:00');
+  const to = new Date(state.delTo+'T00:00:00'); to.setDate(to.getDate()+1);
+  let scheduleIds = null;
+  if(state.rawScheduleFilter) scheduleIds = [state.rawScheduleFilter];
+  else if(state.rawLocationFilter) scheduleIds = state.allSchedule.filter(s=>String(s.location_id)===String(state.rawLocationFilter)).map(s=>s.id);
+  if(scheduleIds && !scheduleIds.length) return [];
+  let all = [], page = 0; const size = 1000;
+  while(true){
+    let q = sb.from('rk_votes').select('id,voter_key,meal_period,dish_type').gte('voted_at', from.toISOString()).lt('voted_at', to.toISOString()).order('id').range(page*size, page*size+size-1);
+    if(scheduleIds) q = q.in('schedule_id', scheduleIds);
+    const { data, error } = await q;
+    if(error) throw error;
+    all = all.concat(data||[]);
+    if(!data || data.length < size) break;
+    page++;
+  }
+  if(state.rawMealFilter) all = all.filter(v => (v.meal_period||'lunch')===state.rawMealFilter);
+  if(state.rawDishFilter) all = all.filter(v => (v.dish_type||'savory')===state.rawDishFilter);
+  return all;
+}
+async function previewDeleteVotes(){
+  if(!state.delFrom || !state.delTo){ alert('กรุณาเลือกวันที่เริ่มต้นและวันที่สิ้นสุด'); return; }
+  if(state.delFrom > state.delTo){ alert('วันที่เริ่มต้นต้องไม่หลังวันที่สิ้นสุด'); return; }
+  state.delBusy = true; render();
+  try{
+    const rows = await fetchDeleteTargets();
+    state.delPreview = { ids: rows.map(r=>r.id), voters: new Set(rows.map(r=>r.voter_key)).size };
+  }catch(e){ alert('ตรวจสอบไม่สำเร็จ: '+e.message); state.delPreview = null; }
+  state.delBusy = false; render();
+}
+async function deleteVotesByRange(){
+  const p = state.delPreview;
+  if(!p || !p.ids.length) return;
+  const msg = `ยืนยันลบข้อมูลการโหวต ${p.ids.length} รายการ (${p.voters} คน)\nช่วง ${fmtDate(state.delFrom)} – ${fmtDate(state.delTo)}\n${delScopeText()}\n\nลบแล้วกู้คืนไม่ได้ พิมพ์คำว่า ลบ เพื่อยืนยัน`;
+  if((prompt(msg)||'').trim() !== 'ลบ') return;
+  state.delBusy = true; render();
+  let deleted = 0;
+  try{
+    // ตรวจซ้ำก่อนลบ กันกรณีมีโหวตใหม่เข้ามา/ตัวกรองเปลี่ยนหลังกดตรวจสอบ
+    const rows = await fetchDeleteTargets();
+    const ids = rows.map(r=>r.id);
+    for(let i=0; i<ids.length; i+=200){
+      const chunk = ids.slice(i, i+200);
+      const { data, error } = await sb.from('rk_votes').delete().in('id', chunk).select('id');
+      if(error) throw error;
+      deleted += (data||[]).length;
+    }
+    if(ids.length && deleted===0) alert('ไม่สามารถลบได้ (0 รายการ) — ฐานข้อมูลอาจยังไม่อนุญาตให้ลบตาราง rk_votes (RLS: ยังไม่มี policy สำหรับ DELETE)');
+    else alert(`ลบข้อมูลการโหวตแล้ว ${deleted} รายการ`);
+    state.delPreview = null;
+    await loadRawVotes();
+    await loadVotesForSchedule();
+  }catch(e){ alert(`ลบไม่สำเร็จ${deleted?` (ลบไปแล้ว ${deleted} รายการ)`:''}: `+e.message); }
+  state.delBusy = false; render();
 }
 function downloadRawCsv(){
   let csv = 'เวลาโหวต,ชื่อ-นามสกุล,หน่วยงาน,จุดบริการ,ร้าน,สัปดาห์บริการ,มื้ออาหาร,หมวด,อันดับ,เซทเมนูที่เลือก\n';
@@ -1018,13 +1105,17 @@ function wireInputs(){
   if(fCat) fCat.onchange = e => { state.fbCategoryFilter = e.target.value; loadFeedback().then(render); };
   document.querySelectorAll('.fbReply').forEach(t => { t.oninput = e => { state.replyDrafts[e.target.getAttribute('data-fbid')] = e.target.value; }; });
   const rawLoc = document.getElementById('rawFilterLoc');
-  if(rawLoc) rawLoc.onchange = e => { state.rawLocationFilter = e.target.value; state.rawScheduleFilter=''; loadRawVotes().then(render); };
+  if(rawLoc) rawLoc.onchange = e => { state.rawLocationFilter = e.target.value; state.delPreview=null; state.rawScheduleFilter=''; loadRawVotes().then(render); };
   const rawSch = document.getElementById('rawFilterSch');
-  if(rawSch) rawSch.onchange = e => { state.rawScheduleFilter = e.target.value; loadRawVotes().then(render); };
+  if(rawSch) rawSch.onchange = e => { state.rawScheduleFilter = e.target.value; state.delPreview=null; loadRawVotes().then(render); };
   const rawMeal = document.getElementById('rawFilterMeal');
-  if(rawMeal) rawMeal.onchange = e => { state.rawMealFilter = e.target.value; loadRawVotes().then(render); };
+  if(rawMeal) rawMeal.onchange = e => { state.rawMealFilter = e.target.value; state.delPreview=null; loadRawVotes().then(render); };
   const rawDish = document.getElementById('rawFilterDish');
-  if(rawDish) rawDish.onchange = e => { state.rawDishFilter = e.target.value; loadRawVotes().then(render); };
+  if(rawDish) rawDish.onchange = e => { state.rawDishFilter = e.target.value; state.delPreview=null; loadRawVotes().then(render); };
+  const delFrom = document.getElementById('delFrom');
+  if(delFrom) delFrom.onchange = e => { state.delFrom = e.target.value; state.delPreview = null; render(); };
+  const delTo = document.getElementById('delTo');
+  if(delTo) delTo.onchange = e => { state.delTo = e.target.value; state.delPreview = null; render(); };
 }
 
 function openLightbox(url, caption){

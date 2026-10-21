@@ -2,164 +2,626 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>สรุปผลความพึงพอใจ ครัวหมุนเวียน</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<link rel="manifest" href="manifest-admin.json">
+<meta name="theme-color" content="#1d2d3d">
+<link rel="icon" href="favicon-admin.png">
+<link rel="apple-touch-icon" href="apple-touch-icon-admin.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ครัวหมุนเวียน แอดมิน">
+<title>สรุปผลความพึงพอใจ - ครัวหมุนเวียน</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700;800&family=Kanit:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600&family=Bai+Jamjuree:wght@400;500;600;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" crossorigin="anonymous"></script>
 <style>
-  :root{
-    --bg:#0B2545; --bg-2:#12395E;
-    --gold:#D9A628; --gold-light:#F0CB6C; --gold-dim: rgba(217,166,40,0.35);
-    --ivory:#FFFFFF; --ivory-dim:#EEF3F8;
-    --ink:#1F2D3D; --ink-soft:#5B6B85;
-    --food:#1E9E93; --food-bg:#DFF7F3; --food-text:#0F766E;
-    --service:#5B6FE0; --service-bg:#E9ECFC; --service-text:#4451C7;
-    --l5:#22C55E; --l4:#86D99C; --l3:#FFC857; --l2:#FF9F68; --l1:#FF6B6B;
-    --silver:#B7B6AA; --bronze:#B5732E;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0; font-family:'Kanit',sans-serif; color:var(--ink);
-    background:var(--bg);
-    background-image:
-      radial-gradient(circle at 20% 0%, rgba(217,166,40,0.18), transparent 45%),
-      radial-gradient(circle at 90% 90%, rgba(255,255,255,0.06), transparent 50%);
-    padding:30px 12px 60px;
-    font-size:16px; line-height:1.6;
-  }
-  .wrap{max-width:648px; margin:0 auto; padding:26px 16px 30px;}
-  .eyebrow{display:flex; align-items:center; justify-content:center; gap:8px; color:var(--gold-light); font-size:13px; letter-spacing:3px; font-weight:700; text-align:center; margin-bottom:10px;}
-  .eyebrow svg{width:16px; height:16px;}
-  .header-band{background:transparent; box-shadow:none; padding:0; margin-bottom:6px;}
-  h1{font-family:'Prompt',sans-serif; font-size:clamp(19px, 6vw, 24px); font-weight:900; margin:0 0 4px; text-align:center; line-height:1.45; word-break:normal; overflow-wrap:break-word; padding:0 4px; background:linear-gradient(180deg,var(--gold-light),var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .rule{width:70px; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:10px auto 6px;}
-  .vendor-note{text-align:center; font-size:12.5px; color:var(--gold-light); margin:0 auto 16px; line-height:1.6; max-width:440px; padding:9px 14px; border:1px solid rgba(217,166,40,0.3); border-radius:8px; background:rgba(217,166,40,0.06);}
-  .updated{text-align:center; font-size:12.5px; color:rgba(251,246,234,0.65); margin-bottom:20px;}
-  .card{
-    position:relative; background:var(--ivory); border-radius:20px; overflow:hidden;
-    box-shadow:0 10px 28px rgba(217,166,40,0.14), 0 2px 8px rgba(31,45,61,0.06);
-    padding:24px 22px; margin-bottom:18px;
-  }
-  .card::before{content:''; position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,var(--gold-light),var(--gold));}
-  .sec-head{display:flex; align-items:center; gap:12px; margin-bottom:16px;}
-  .sec-icon{width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
-  .sec-icon svg{width:19px; height:19px;}
-  .sec-title{font-family:'Prompt',sans-serif; font-weight:700; font-size:17px; line-height:1.3;}
-  .error{display:flex; align-items:center; gap:8px; color:#D64550; background:#FFE8E8; border:1px solid #FFC9C9; padding:10px 12px; border-radius:6px; font-size:14px; font-weight:600; margin-bottom:14px;}
-  .refresh-btn{margin-top:12px; padding:9px 16px; border-radius:8px; border:1.5px solid var(--ink); background:transparent; color:var(--ink); font-size:13.5px; font-weight:700; cursor:pointer; font-family:inherit;}
-  .empty-state{text-align:center; font-size:15px; padding:30px 0; color:var(--ink-soft);}
-  .loading{text-align:center; color:var(--gold-light); padding:40px; font-size:15px;}
+/* แถบนำทางล่าง (bottom nav) ใช้สลับไปมาระหว่างทั้ง 5 ส่วนหลักของระบบ ข้ามไฟล์ได้ทันที แบบแอปมือถือ */
+.bottom-nav{
+  flex:0 0 auto; position:relative; z-index:40;
+  background:var(--navy); display:flex; align-items:stretch;
+  padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+  box-shadow:0 -8px 20px rgba(27,42,107,0.25);
+}
+.bottom-nav .bn-item{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  padding:7px 2px; color:rgba(255,255,255,0.55); text-decoration:none; font-size:10.5px; font-weight:500;
+  border-radius:10px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; min-height:48px; box-sizing:border-box;
+  transition:color .15s;
+}
+.bottom-nav .bn-item svg{width:20px; height:20px; stroke-width:1.7; transition:stroke-width .15s;}
+.bottom-nav .bn-item.active{color:#60A5FA; font-weight:700;}
+.bottom-nav .bn-item.active svg{stroke-width:2.2;}
+/* fix: แถบล่างหลุดจอ — ล็อกไว้ที่ขอบล่างของจอเสมอ และกันตัวหน้าเลื่อนเอง */
+html,body{height:100%; overflow:hidden; overscroll-behavior:none;}
+body{position:fixed; inset:0; height:auto;}
+.scroll-area{position:absolute; top:0; left:0; right:0; bottom:calc(62px + env(safe-area-inset-bottom)); padding-top:calc(16px + env(safe-area-inset-top)); overscroll-behavior:contain;}
+.bottom-nav{position:fixed !important; left:0; right:0; bottom:0; height:calc(62px + env(safe-area-inset-bottom)); padding-bottom:env(safe-area-inset-bottom); z-index:40;}
+.bottom-nav .bn-item{min-height:62px;}
+.admin-topbar{padding:12px 16px; margin-bottom:16px;}
+</style>
+<style>
 
-  .seal-wrap{display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:6px;}
-  .seal{
-    width:132px; height:132px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    background:var(--ivory-dim); border:2px solid var(--gold);
-    box-shadow:0 0 0 5px rgba(217,166,40,0.14), 0 10px 26px rgba(0,0,0,0.15);
-  }
-  .seal .score{font-family:'Kanit',sans-serif; font-weight:700; font-size:40px; color:var(--ink); line-height:1;}
-  .seal .label{font-size:12px; font-weight:700; letter-spacing:1px; color:var(--gold); margin-top:4px; text-transform:uppercase;}
-  .seal-sub{font-size:13.5px; color:var(--ink-soft); margin-top:12px;}
-  .kpi-row{display:flex; gap:10px; margin-top:20px;}
-  .kpi{flex:1; background:var(--ivory-dim); border-radius:9px; padding:14px 8px; text-align:center;}
-  .kpi .icon{width:26px; height:26px; margin:0 auto 6px; color:var(--gold);}
-  .kpi .num{font-family:'Kanit',sans-serif; font-weight:700; font-size:24px; color:var(--ink); line-height:1;}
-  .kpi .lbl{font-size:11.5px; color:var(--ink-soft); margin-top:4px; line-height:1.3;}
+:root{
+  --bg:#0B2545; --bg-2:#12395E;
+  --gold:#D9A628; --gold-light:#F0CB6C; --gold-dim: rgba(217,166,40,0.35);
+  --ivory:#FFFFFF; --ivory-dim:#EEF3F8;
+  --ink:#1F2D3D; --ink-soft:#5B6B85;
+  --food:#1E9E93; --food-bg:#DFF7F3; --food-text:#0F766E;
+  --service:#5B6FE0; --service-bg:#E9ECFC; --service-text:#4451C7;
+  --l5:#22C55E; --l4:#86D99C; --l3:#FFC857; --l2:#FF9F68; --l1:#FF6B6B;
+  --ok:#22C55E; --warn:#FFC857; --danger:#FF6B6B;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; font-family:'Kanit',sans-serif; color:var(--ink);
+  background:var(--bg);
+  background-image:
+    radial-gradient(circle at 20% 0%, rgba(217,166,40,0.18), transparent 45%),
+    radial-gradient(circle at 90% 90%, rgba(255,255,255,0.06), transparent 50%);
+  padding:30px 12px 60px;
+  padding-left:max(12px, env(safe-area-inset-left));
+  padding-right:max(12px, env(safe-area-inset-right));
+  padding-bottom:max(60px, calc(env(safe-area-inset-bottom) + 24px));
+  font-size:16px; line-height:1.6;
+  min-height:100vh; min-height:100dvh;
+  -webkit-tap-highlight-color:transparent;
+}
+.wrap{max-width:648px; margin:0 auto; padding:26px 16px 30px;}
+.wrap.wide{max-width:1080px;}
+.eyebrow{display:flex; align-items:center; justify-content:center; gap:8px; color:var(--gold-light); font-size:13px; letter-spacing:3px; font-weight:700; text-align:center; margin-bottom:10px;}
+.header-band{background:transparent; box-shadow:none; padding:0; margin-bottom:6px;}
+h1{font-family:'Prompt',sans-serif; font-size:clamp(20px, 6vw, 26px); font-weight:900; margin:0 0 4px; text-align:center; line-height:1.45; padding:0 4px; background:linear-gradient(180deg,var(--gold-light),var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.rule{width:70px; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:10px auto 14px;}
+.subhead{text-align:center; font-size:14.5px; color:rgba(251,246,234,0.82); margin:0 0 10px; line-height:1.6; max-width:520px; margin-left:auto; margin-right:auto;}
+.vendor-note{text-align:center; font-size:13px; color:var(--gold-light); margin:0 0 22px; line-height:1.6; max-width:520px; margin-left:auto; margin-right:auto; padding:10px 14px; border:1px solid rgba(217,166,40,0.3); border-radius:8px; background:rgba(217,166,40,0.06);}
+.card{
+  position:relative; background:var(--ivory); border-radius:20px; overflow:hidden;
+  box-shadow:0 10px 28px rgba(217,166,40,0.14), 0 2px 8px rgba(31,45,61,0.06);
+  padding:26px 22px; margin-bottom:18px;
+}
+.card::before{content:''; position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,var(--gold-light),var(--gold));}
+.card.flush{padding:0;}
+.sec-head{display:flex; align-items:center; gap:12px; margin-bottom:16px;}
+.sec-icon{width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.sec-icon svg{width:21px; height:21px;}
+.sec-title{font-family:'Prompt',sans-serif; font-weight:700; font-size:18px; line-height:1.3;}
+.sec-sub{font-size:12.5px; color:var(--ink-soft); margin-top:1px;}
+.divider{border-top:1px solid rgba(31,45,61,0.12); margin:20px 0;}
+.unit-row-btn{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:13px 14px; min-height:48px; box-sizing:border-box;
+  border-radius:8px;
+  border:1.5px solid rgba(31,45,61,0.14); background:rgba(255,255,255,0.5); cursor:pointer; font-family:inherit;
+  margin-bottom:9px; transition:transform .15s, box-shadow .15s, background .15s, border-color .15s;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent; -webkit-appearance:none; appearance:none;
+}
+.unit-row-btn:hover{transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.unit-row-btn .icon{width:32px; height:32px; border-radius:50%; background:var(--ivory-dim); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--ink-soft);}
+.unit-row-btn .icon svg{width:17px; height:17px;}
+.unit-row-btn .label{font-size:14.5px; font-weight:600; line-height:1.4;}
+.unit-row-btn.active{background:var(--ink); border-color:var(--gold);}
+.unit-row-btn.active .label{color:var(--ivory);}
+.unit-row-btn.active .icon{background:var(--gold); color:var(--ink);}
+.field-block{border-left:3px solid var(--accent, var(--gold)); padding-left:14px; margin-bottom:20px;}
+.field-label{display:flex; align-items:center; gap:8px; font-size:15px; font-weight:700; margin-bottom:4px; line-height:1.4;}
+.field-hint{font-size:12.5px; color:var(--ink-soft); margin-bottom:8px;}
+input[type=text], input[type=tel], input[type=number], input[type=date], input[type=time], input[type=password], select, textarea{
+  width:100%; padding:12px 14px; border-radius:8px; border:1.5px solid rgba(31,45,61,0.16); background:rgba(255,255,255,0.6);
+  font-family:inherit; font-size:16px; color:var(--ink); margin-top:-2px; margin-bottom:9px;
+  -webkit-appearance:none; appearance:none; -webkit-tap-highlight-color:transparent;
+}
+input:focus, select:focus, textarea:focus{outline:none; box-shadow:0 0 0 3px rgba(217,166,40,0.2); border-color:var(--gold);}
+textarea{resize:vertical; line-height:1.5; -webkit-appearance:none; appearance:none;}
+.submit-btn{
+  width:100%; padding:16px; border-radius:8px; border:1px solid var(--gold-dim);
+  background:linear-gradient(180deg,#4FA8DE,#2E86D6); color:var(--ivory); font-weight:700; font-size:16.5px;
+  cursor:pointer; letter-spacing:1px; font-family:inherit; box-shadow:0 10px 24px rgba(217,166,40,0.35);
+  transition:transform .15s, box-shadow .15s;
+  min-height:50px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; -webkit-appearance:none; appearance:none;
+  -webkit-user-select:none; user-select:none;
+}
+.submit-btn:hover{transform:translateY(-2px); box-shadow:0 14px 30px rgba(217,166,40,0.45);}
+.submit-btn:disabled{background:#B9C6D4; box-shadow:none; cursor:default; transform:none;}
+.submit-btn.gold{background:linear-gradient(180deg,var(--gold-light),var(--gold)); color:var(--ink);}
+.note{text-align:center; font-size:12.5px; color:var(--ink-soft); margin-top:12px;}
+.error{display:flex; align-items:center; gap:8px; color:#D64550; background:#FFE8E8; border:1px solid #FFC9C9; padding:10px 12px; border-radius:6px; font-size:14px; font-weight:600; margin-bottom:14px;}
+.info-box{display:flex; align-items:flex-start; gap:8px; color:var(--service-text); background:var(--service-bg); border:1px solid rgba(68,81,199,0.25); padding:10px 12px; border-radius:6px; font-size:13.5px; font-weight:500; margin-bottom:14px;}
+.success{text-align:center; padding:12px 0;}
+.success .seal{width:74px; height:74px; border-radius:50%; border:2px solid var(--gold); background:var(--ivory-dim); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 0 0 5px rgba(217,166,40,0.12);}
+.success .seal svg{width:34px; height:34px; color:var(--food);}
+.success h2{font-family:'Prompt',sans-serif; font-weight:700; font-size:21px; color:var(--ink); margin:0 0 8px;}
+.success p{font-size:15px; margin:0 0 22px; color:var(--ink-soft);}
+.btn-outline{padding:12px 22px; min-height:44px; border-radius:8px; border:1.5px solid var(--ink); background:transparent; color:var(--ink); font-weight:700; font-size:15px; cursor:pointer; font-family:inherit; transition:background .15s; touch-action:manipulation; -webkit-tap-highlight-color:transparent; box-sizing:border-box;}
+.btn-outline:hover{background:rgba(31,45,61,0.06);}
+.btn-outline.on-dark{border-color:var(--gold-light); color:var(--gold-light);}
+.btn-outline.on-dark:hover{background:rgba(217,166,40,0.1);}
+.btn-small{padding:9px 13px; min-height:36px; border-radius:6px; border:1.5px solid rgba(31,45,61,0.18); background:#fff; color:var(--ink); font-weight:600; font-size:12.5px; cursor:pointer; font-family:inherit; touch-action:manipulation; -webkit-tap-highlight-color:transparent; box-sizing:border-box;}
+.btn-small.danger{border-color:rgba(255,107,107,0.4); color:#D64550;}
+.btn-small.primary{border-color:var(--gold); background:var(--gold); color:#fff;}
+.link-btn{background:none; border:none; color:var(--service-text); font-weight:600; font-size:13.5px; cursor:pointer; font-family:inherit; padding:10px 0; touch-action:manipulation; -webkit-tap-highlight-color:transparent;}
 
-  .unit-row{margin-bottom:16px;}
-  .unit-row .head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:14.5px; margin-bottom:5px;}
-  .unit-row .name{font-weight:700; line-height:1.4; display:flex; align-items:center; gap:6px; flex:1 1 auto; min-width:0; flex-wrap:wrap;}
-  .unit-row .name .crown{width:15px; height:15px; color:var(--gold); flex-shrink:0;}
-  .unit-row .val{font-family:'Kanit',sans-serif; font-weight:700; font-size:18px; flex:0 0 auto; white-space:nowrap;}
-  .unit-row .count{font-size:12px; color:var(--ink-soft); font-weight:400;}
-  .unit-track{height:10px; background:rgba(31,45,61,0.09); border-radius:5px; overflow:hidden;}
-  .unit-fill{height:100%; border-radius:5px;}
+/* pills / badges */
+.pill{display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:99px; font-size:11.5px; font-weight:700; letter-spacing:.3px;}
+.pill.draft{background:#EEF1F5; color:#5B6B85;}
+.pill.vote_open{background:#DFF7EA; color:#0F9D58;}
+.pill.vote_closed{background:#FFEFD6; color:#B5720A;}
+.pill.serving{background:#E9ECFC; color:#4451C7;}
+.pill.completed{background:#EDEDED; color:#777;}
+.pill.new{background:#FFE8E8; color:#D64550;}
+.pill.acknowledged{background:#FFEFD6; color:#B5720A;}
+.pill.resolved{background:#DFF7EA; color:#0F9D58;}
 
-  .cat-row{margin-bottom:13px;}
-  .cat-head{display:flex; justify-content:space-between; gap:10px; font-size:14.5px; margin-bottom:4px;}
-  .cat-head .name{font-weight:600; flex:1 1 auto; min-width:0;}
-  .cat-head .val{font-family:'Kanit',sans-serif; font-weight:700; font-size:16px; flex:0 0 auto; white-space:nowrap;}
-  .cat-track{height:8px; background:rgba(31,45,61,0.09); border-radius:4px; overflow:hidden;}
-  .cat-fill{height:100%; border-radius:4px;}
-  .cat-group{margin-bottom:20px;}
-  .cat-group:last-child{margin-bottom:0;}
-  .cat-group-head{display:flex; align-items:center; gap:9px; margin-bottom:12px;}
-  .cat-group-head .chip{width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
-  .cat-group-head .chip svg{width:15px; height:15px;}
-  .cat-group-head .lbl{font-size:13.5px; font-weight:700; color:var(--ink);}
+/* admin shell */
+.admin-topbar{background:rgba(255,255,255,0.06); border:1px solid rgba(217,166,40,0.25); border-radius:14px; padding:14px 18px; margin-bottom:20px; display:flex; flex-wrap:wrap; align-items:center; gap:10px 18px;}
+.admin-topbar .brand{font-family:'Prompt',sans-serif; font-weight:800; color:var(--gold-light); font-size:15px; letter-spacing:.5px; margin-right:auto;}
+.admin-nav{display:flex; flex-wrap:wrap; gap:6px;}
+.admin-nav a{color:rgba(255,255,255,0.75); text-decoration:none; font-size:13px; font-weight:600; padding:7px 12px; border-radius:8px; transition:background .15s,color .15s;}
+.admin-nav a:hover{background:rgba(255,255,255,0.08); color:#fff;}
+.admin-nav a.current{background:var(--gold); color:var(--ink);}
 
-  .wish-tabs{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
-  .wish-tab{padding:7px 13px; border-radius:20px; border:1px solid rgba(31,45,61,0.18); background:transparent; font-size:13px; cursor:pointer; font-family:inherit; color:var(--ink); font-weight:600;}
-  .wish-tab.active{background:var(--ink); border-color:var(--ink); color:var(--ivory);}
-  .wish-item{display:flex; align-items:center; gap:12px; margin-bottom:11px;}
-  .wish-rank{width:26px; height:26px; border-radius:50%; color:#fff; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:'Kanit',sans-serif; background:var(--ink-soft);}
-  .wish-rank.r1{background:var(--gold); color:var(--ink);}
-  .wish-rank.r2{background:var(--silver); color:var(--ink);}
-  .wish-rank.r3{background:var(--bronze); color:#fff;}
-  .wish-name{flex:1 1 auto; min-width:0; font-size:15px; font-weight:600;}
-  .wish-count{font-family:'Kanit',sans-serif; font-size:16px; color:var(--l1); font-weight:700; flex:0 0 auto;}
+/* tables */
+.data-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+.data-table th{text-align:left; background:var(--ink); color:#fff; padding:10px 12px; font-weight:600; font-size:12.5px;}
+.data-table td{padding:10px 12px; border-bottom:1px solid rgba(31,45,61,0.08); vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:var(--ivory-dim);}
+.table-scroll{overflow-x:auto; border-radius:10px;}
 
-  .comment-item{border-left:3px solid var(--l1); padding:6px 0 6px 14px; margin-bottom:14px; font-size:14.5px; line-height:1.55;}
-  .comment-item .who{font-weight:700; color:var(--service-text); margin-bottom:3px; font-size:13px;}
-  .comment-item .quote{color:var(--gold); font-family:Georgia,serif; font-size:22px; line-height:0; vertical-align:-6px; margin-right:3px;}
+/* grid cards (vendors, menu sets) */
+.card-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px;}
+.item-card{background:#fff; border:1.5px solid rgba(31,45,61,0.1); border-radius:14px; overflow:hidden; cursor:pointer; transition:transform .15s, box-shadow .15s, border-color .15s; position:relative; touch-action:manipulation; -webkit-tap-highlight-color:transparent;}
+.item-card:hover{transform:translateY(-2px); box-shadow:0 8px 18px rgba(0,0,0,0.1);}
+.item-card .thumb{width:100%; aspect-ratio:1; background:var(--ivory-dim) center/cover no-repeat; display:flex; align-items:center; justify-content:center; color:var(--ink-soft);}
+.item-card .thumb svg{width:30px; height:30px;}
+.item-card .cap{padding:10px 10px 12px; font-size:13px; font-weight:600; line-height:1.4;}
+.item-card .cap .sub{font-size:11px; color:var(--ink-soft); font-weight:500; margin-top:2px;}
+.item-card.selected{border-color:var(--gold); box-shadow:0 0 0 3px rgba(217,166,40,0.25);}
+.rank-badge{position:absolute; top:8px; left:8px; width:28px; height:28px; border-radius:50%; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; box-shadow:0 3px 8px rgba(0,0,0,0.25);}
+.item-card .toggle-active{position:absolute; top:8px; right:8px; z-index:2;}
 
-  .date-filter{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px;}
-  .date-pill{padding:7px 13px; border-radius:20px; border:1px solid rgba(31,45,61,0.18); background:transparent; font-size:13px; cursor:pointer; font-family:inherit; color:var(--ink); font-weight:600;}
-  .date-pill.active{background:var(--ink); border-color:var(--ink); color:var(--ivory);}
-  .date-custom{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:13px;}
-  .date-custom input{padding:8px 10px; border-radius:6px; border:1.5px solid rgba(31,45,61,0.18); background:rgba(255,255,255,0.6); font-family:inherit; font-size:13px; color:var(--ink);}
-  .date-range-note{font-size:12.5px; color:var(--ink-soft); margin-bottom:14px;}
+/* upload dropzone */
+.dropzone{border:2px dashed rgba(31,45,61,0.25); border-radius:12px; padding:18px; text-align:center; cursor:pointer; background:var(--ivory-dim); margin-bottom:10px; transition:border-color .15s, background .15s;}
+.dropzone:hover{border-color:var(--gold);}
+.dropzone.has-image{padding:0; border-style:solid;}
+.dropzone img{width:100%; max-height:180px; object-fit:contain; display:block; border-radius:10px;}
+.dropzone .dz-label{font-size:13px; color:var(--ink-soft); font-weight:600;}
 
-  .export-row{display:flex; gap:10px;}
-  .export-btn{flex:1; min-width:0; display:flex; align-items:center; justify-content:center; gap:8px; padding:13px; border-radius:8px; border:1.5px solid var(--ink); background:transparent; color:var(--ink); font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; transition:background .15s;}
-  .export-btn:hover{background:rgba(31,45,61,0.06);}
-  .export-btn:disabled{opacity:0.5; cursor:default;}
-  .export-btn svg{width:17px; height:17px; flex-shrink:0;}
-  .export-btn.pdf{background:var(--ink); color:var(--ivory);}
-  .export-btn.pdf:hover{background:#1F5FA8;}
+/* modal */
+.modal-overlay{position:fixed; inset:0; background:rgba(11,37,69,0.6); backdrop-filter:blur(2px); display:flex; align-items:flex-start; justify-content:center; padding:30px 14px; overflow-y:auto; z-index:50;}
+.modal-card{background:#fff; border-radius:18px; max-width:480px; width:100%; padding:24px 22px; box-shadow:0 20px 50px rgba(0,0,0,0.35);}
+.modal-card h3{font-family:'Prompt',sans-serif; font-size:18px; margin:0 0 16px; color:var(--ink);}
+.modal-actions{display:flex; gap:10px; margin-top:6px;}
+.modal-actions button{flex:1;}
+
+/* segmented category selector */
+.seg-row{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+.seg-opt{padding:10px 14px; min-height:40px; box-sizing:border-box; border-radius:99px; border:1.5px solid rgba(31,45,61,0.16); background:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; color:var(--ink-soft); touch-action:manipulation; -webkit-tap-highlight-color:transparent; -webkit-appearance:none; appearance:none;}
+.seg-opt.active{background:var(--ink); border-color:var(--ink); color:#fff;}
+
+/* chat / feedback list */
+.msg-item{border:1px solid rgba(31,45,61,0.1); border-radius:12px; padding:14px 16px; margin-bottom:12px; background:#fff;}
+.msg-item .msg-head{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;}
+.msg-item .msg-name{font-weight:700; font-size:14px;}
+.msg-item .msg-meta{font-size:11.5px; color:var(--ink-soft);}
+.msg-item .msg-body{font-size:14px; line-height:1.6; color:var(--ink);}
+.msg-item .msg-reply{margin-top:10px; padding:10px 12px; background:var(--ivory-dim); border-radius:8px; font-size:13.5px; border-left:3px solid var(--gold);}
+.msg-item .msg-reply .lbl{font-weight:700; color:var(--gold); font-size:11.5px; display:block; margin-bottom:3px;}
+
+.stat-row{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:18px;}
+.stat-box{flex:1 1 130px; background:#fff; border-radius:14px; padding:16px; text-align:center; box-shadow:0 6px 16px rgba(0,0,0,0.08);}
+.stat-box .num{font-family:'Prompt',sans-serif; font-weight:800; font-size:26px; color:var(--ink);}
+.stat-box .lbl{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+
+.rank-list{list-style:none; margin:0; padding:0;}
+.rank-list li{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid rgba(31,45,61,0.08);}
+.rank-list li:last-child{border-bottom:none;}
+.rank-list .pos{width:26px; height:26px; border-radius:50%; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; flex-shrink:0;}
+.rank-list li:nth-child(1) .pos{background:linear-gradient(180deg,#F0CB6C,#D9A628);}
+.rank-list li:nth-child(2) .pos{background:#B8C0CC;}
+.rank-list li:nth-child(3) .pos{background:#C98A4E;}
+.rank-list .bar-wrap{flex:1;}
+.rank-list .bar-name{font-size:13.5px; font-weight:700; margin-bottom:4px; display:flex; justify-content:space-between; gap:6px;}
+.rank-list .bar-bg{background:var(--ivory-dim); border-radius:6px; height:10px; overflow:hidden;}
+.rank-list .bar-fill{height:100%; background:linear-gradient(90deg,var(--gold-light),var(--gold)); border-radius:6px;}
+.thumb-sm{width:44px; height:44px; border-radius:8px; background:var(--ivory-dim) center/cover no-repeat; display:flex; align-items:center; justify-content:center; color:var(--ink-soft); flex-shrink:0;}
+.thumb-sm svg{width:20px; height:20px;}
+.chip-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+.chip{display:inline-flex; align-items:center; padding:4px 10px; border-radius:99px; background:var(--ivory-dim); color:var(--ink-soft); font-size:11.5px; font-weight:600;}
+.vendor-logo-big-wrap{width:100%; height:110px; margin:2px 0 16px; border-radius:12px; background:#fff; padding:8px; box-shadow:0 4px 14px rgba(0,0,0,0.08); border:1px solid rgba(31,45,61,0.08); display:flex; align-items:center; justify-content:center; overflow:hidden; box-sizing:border-box;}
+.vendor-logo-big-wrap img{max-width:100%; max-height:100%; object-fit:contain;}
+
+/* กันข้อความไทยยาวๆ (ไม่มีเว้นวรรค) ทะลุกรอบบนมือถือ */
+.chip, .pill, .bar-name, .sec-title, .sec-sub, .msg-body, .cap, .field-hint, td, th { overflow-wrap:anywhere; word-break:break-word; }
+.chip-row{ max-width:100%; }
+
+/* ตารางแบบ responsive: จอเล็กพับแต่ละแถวเป็นการ์ด แทนตารางแนวนอนที่ต้องเลื่อนซ้าย-ขวา */
+@media (max-width:720px){
+  .table-scroll{ overflow-x:visible; }
+  .data-table{ width:100%; }
+  .data-table thead{ display:none; }
+  .data-table, .data-table tbody, .data-table tr, .data-table td{ display:block; width:100%; }
+  .data-table tr{ margin-bottom:14px; border:1.5px solid rgba(31,45,61,0.12); border-radius:12px; overflow:hidden; background:#fff; }
+  .data-table tr:last-child{ margin-bottom:0; }
+  .data-table td{ padding:9px 12px; border-bottom:1px solid rgba(31,45,61,0.08); text-align:left !important; }
+  .data-table td:last-child{ border-bottom:none; }
+  .data-table td::before{ content:attr(data-label); display:block; font-family:'Prompt',sans-serif; font-weight:700; font-size:10.5px; letter-spacing:.4px; color:var(--ink-soft); margin-bottom:3px; text-transform:uppercase; }
+  .data-table td:empty::before{ content:none; }
+  .admin-topbar{ padding:12px 14px; }
+  .admin-topbar .brand{ font-size:13.5px; }
+  .stat-row{ gap:8px; }
+  .stat-box{ flex:1 1 100%; padding:12px; }
+  .card{ padding:20px 16px; }
+  h1{ font-size:clamp(18px,7vw,23px); }
+}
+
+.spinner{width:22px; height:22px; border-radius:50%; border:3px solid rgba(217,166,40,0.25); border-top-color:var(--gold); animation:spin 0.8s linear infinite; margin:0 auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty-state{text-align:center; padding:30px 10px; color:var(--ink-soft); font-size:14px;}
+
+@media (max-width:640px){
+  .admin-topbar{flex-direction:column; align-items:flex-start;}
+  .admin-nav{width:100%;}
+}
+
+
+
+/* ===== Industry v2 theme (ครัวหมุนเวียน) — overrides the legacy styles above ===== */
+:root{
+  --color-bg:#f2f2f3; --color-surface:#e9e9ea; --color-text:#1d1f20; --color-accent:#5980a6;
+  --color-divider:color-mix(in srgb,#1d1f20 16%,transparent);
+  --color-neutral-100:#f5f5f8; --color-neutral-200:#e7e7ea; --color-neutral-300:#d4d4d7; --color-neutral-400:#b7b7ba; --color-neutral-500:#98989b; --color-neutral-600:#7a7a7d; --color-neutral-700:#5d5d60; --color-neutral-800:#424244; --color-neutral-900:#2b2b2d;
+  --color-accent-100:#eef6ff; --color-accent-200:#d6ebff; --color-accent-300:#b5d9fd; --color-accent-400:#94bce3; --color-accent-500:#749dc4; --color-accent-600:#597ea3; --color-accent-700:#416180; --color-accent-800:#2c455d; --color-accent-900:#1d2d3d;
+  --warm-100:oklch(0.965 0.03 78); --warm-200:oklch(0.92 0.06 76); --warm-300:oklch(0.86 0.1 74); --warm-500:oklch(0.76 0.15 64); --warm-700:oklch(0.52 0.13 50); --warm-900:oklch(0.32 0.08 45);
+  --font-heading:"Barlow Condensed","Bai Jamjuree",system-ui,sans-serif;
+  --font-body:"Barlow","Bai Jamjuree",system-ui,sans-serif;
+  --mark:color-mix(in srgb,#1d1f20 55%,transparent);
+  --shadow-md:0 3px 10px color-mix(in srgb,#2b2b2d 16%,transparent);
+  --shadow-lg:0 12px 32px color-mix(in srgb,#2b2b2d 22%,transparent);
+  --bg:var(--color-bg); --bg-2:var(--color-accent-100); --navy:var(--color-accent-900); --navy-light:var(--color-accent-800);
+  --gold:var(--color-accent); --gold-light:var(--color-accent-400); --gold-dim:var(--color-accent-300);
+  --ivory:var(--color-bg); --ivory-dim:var(--color-neutral-200); --ink:var(--color-text); --ink-soft:var(--color-neutral-700);
+  --food:var(--warm-700); --food-bg:var(--warm-100); --food-text:var(--warm-700);
+  --service:var(--color-accent); --service-bg:var(--color-accent-100); --service-text:var(--color-accent-800);
+}
+body{font-family:var(--font-body); color:var(--color-text); background:var(--color-bg); background-image:none; padding:0; font-size:16px;}
+h1,h2,h3,.sec-title,.modal-card h3,.success h2,.stat-box .num{font-family:var(--font-heading); font-weight:600;}
+a{color:var(--color-accent-700);} a:hover{color:var(--color-accent-800);}
+:focus-visible{outline:2px solid var(--color-accent); outline-offset:2px;}
+::selection{background:color-mix(in srgb,var(--color-accent) 30%,transparent);}
+.wrap{padding:18px 16px 40px;}
+
+/* registration marks */
+.card::after,.submit-btn::after,.menu-card.selected::after,.success .seal::after{
+  content:""; position:absolute; inset:-6px; pointer-events:none;
+  background:
+    linear-gradient(var(--mark),var(--mark)) left 0 top 5px/11px 1px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) left 5px top 0/1px 11px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) right 0 top 5px/11px 1px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) right 5px top 0/1px 11px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) left 0 bottom 5px/11px 1px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) left 5px bottom 0/1px 11px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) right 0 bottom 5px/11px 1px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) right 5px bottom 0/1px 11px no-repeat;
+}
+
+/* app bar (user pages) */
+.app-bar{position:sticky; top:0; z-index:30; background:var(--color-accent-900); color:var(--color-bg); padding:calc(10px + env(safe-area-inset-top)) 16px 12px; padding-left:max(16px, env(safe-area-inset-left)); padding-right:max(16px, env(safe-area-inset-right));}
+.app-bar-in{max-width:648px; margin:0 auto; display:flex; align-items:center; gap:12px;}
+.app-bar-txt{flex:1; min-width:0;}
+.app-kicker{font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--warm-300);}
+.app-title{font:600 22px/1.2 var(--font-heading);}
+.app-bar-btn{flex:none; display:flex; align-items:center; gap:6px; min-height:44px; padding:0 12px; border:1px solid var(--color-accent-700); color:var(--color-bg); text-decoration:none; font-size:15px;}
+.app-bar-btn:hover{background:var(--color-accent-800); color:var(--color-bg);}
+.app-bar-btn svg{width:20px; height:20px;}
+.stepbar{max-width:648px; margin:10px auto 0; display:grid; grid-template-columns:repeat(4,1fr); gap:4px;}
+.stepbar:empty{display:none;}
+.stepbar .st{display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--color-accent-300);}
+.stepbar .st i{height:4px; background:var(--color-accent-700);}
+.stepbar .st.on i{background:var(--warm-500);}
+.stepbar .st.cur{color:var(--color-bg); font-weight:600;}
+.vendor-note{text-align:left; color:var(--color-accent-800); background:var(--color-accent-100); border:1px solid var(--color-accent-300); border-radius:0; font-size:15px; padding:12px 14px; margin:0 0 18px; max-width:none;}
+
+/* cards & sections */
+.card{background:transparent; border:1px solid var(--color-divider); border-radius:0; box-shadow:none; overflow:visible; padding:20px 16px;}
+.card::before{display:none;}
+.sec-icon{border-radius:0;}
+.sec-title{font-size:22px; line-height:1.2;}
+.sec-sub{font-size:14px; color:var(--color-neutral-700);}
+.divider{border-color:var(--color-divider);}
+.field-block{border-left:1px solid var(--color-accent) !important;}
+.field-label{font-size:16px; font-weight:600;}
+.field-hint{font-size:13.5px; color:var(--color-neutral-700);}
+
+.unit-row-btn{border-radius:0; border:1px solid var(--color-divider); background:transparent; min-height:56px; transition:background .15s,border-color .15s;}
+.unit-row-btn:hover{transform:none; box-shadow:none; background:color-mix(in srgb,var(--color-text) 5%,transparent);}
+.unit-row-btn .icon{border-radius:0; background:transparent; border:1px solid var(--color-divider); color:var(--color-accent-700);}
+.unit-row-btn .label{font-size:17px; font-weight:500; color:var(--color-text);}
+.unit-row-btn.active{background:var(--color-accent-100); border-color:var(--color-accent);}
+.unit-row-btn.active .label{color:var(--color-text); font-weight:600;}
+.unit-row-btn.active .icon{background:var(--color-accent); border-color:var(--color-accent); color:var(--color-bg);}
+
+input[type=text],input[type=tel],input[type=number],input[type=date],input[type=time],input[type=datetime-local],input[type=password],select,textarea{border-radius:0; border:1px solid var(--color-divider); background-color:var(--color-surface); font-size:17px; min-height:50px; caret-color:var(--color-accent);}
+input:focus,select:focus,textarea:focus{box-shadow:none; border-color:var(--color-accent); outline:2px solid var(--color-accent); outline-offset:0;}
+
+.submit-btn{position:relative; border-radius:0; border:1px solid var(--color-accent); background:var(--color-accent); color:var(--color-bg); box-shadow:none; font:600 20px/1.2 var(--font-heading); letter-spacing:.01em; min-height:56px; transition:background .15s;}
+.submit-btn:hover{transform:none; box-shadow:none; background:var(--color-accent-600);}
+.submit-btn:active{background:var(--color-accent-700);}
+.submit-btn:disabled{background:var(--color-accent); opacity:.45; cursor:not-allowed;}
+.submit-btn:disabled::after{display:none;}
+.submit-btn.gold{background:var(--warm-500); border-color:var(--warm-500); color:var(--warm-900);}
+.btn-outline{border-radius:0; border:1px solid var(--color-divider); color:var(--color-text); font:600 17px/1.2 var(--font-heading); min-height:48px;}
+.btn-outline:hover{background:color-mix(in srgb,var(--color-text) 7%,transparent);}
+.btn-outline.on-dark{border-color:var(--color-accent-700); color:var(--color-bg);}
+.btn-small{border-radius:0; border:1px solid var(--color-divider); background:transparent; font-size:13px; min-height:38px;}
+.btn-small:hover{background:color-mix(in srgb,var(--color-text) 7%,transparent);}
+.btn-small.primary{background:var(--color-accent); border-color:var(--color-accent); color:var(--color-bg);}
+.btn-small.primary:hover{background:var(--color-accent-600);}
+.btn-small.danger{border-color:var(--warm-300); color:var(--warm-700);}
+.link-btn{color:var(--color-accent-700); font-size:15px;}
+.note{font-size:14px; color:var(--color-neutral-700);}
+.error{border-radius:0; color:var(--warm-900); background:var(--warm-100); border:1px solid var(--warm-500); font-size:15px;}
+.info-box{border-radius:0; color:var(--color-accent-800); background:var(--color-accent-100); border:1px solid var(--color-accent-300); font-size:15px;}
+.info-box svg{width:18px; height:18px; flex:none; margin-top:3px;}
+.empty-state{color:var(--color-neutral-700); font-size:15px;}
+.spinner{border-color:var(--color-accent-200); border-top-color:var(--color-accent);}
+
+.success .seal{position:relative; border-radius:0; border:1px solid var(--warm-500); background:var(--warm-100); box-shadow:none; width:80px; height:80px;}
+.success .seal svg{color:var(--warm-700); stroke-width:1.5;}
+.success h2{font-size:28px;}
+.success p{font-size:16px; color:var(--color-neutral-700);}
+
+/* tags */
+.pill{border-radius:0; font-weight:500; font-size:12px; letter-spacing:.02em; padding:3px 10px; white-space:nowrap;}
+.pill.draft{background:var(--color-neutral-100); color:var(--color-neutral-800);}
+.pill.vote_open{background:transparent; border:1px solid var(--color-accent); color:var(--color-accent-800);}
+.pill.vote_closed{background:var(--color-accent-100); color:var(--color-accent-800);}
+.pill.serving{background:var(--color-accent-200); color:var(--color-accent-900);}
+.pill.completed{background:var(--color-neutral-100); color:var(--color-neutral-700);}
+.pill.new{background:var(--warm-500); color:var(--warm-900);}
+.pill.acknowledged{background:var(--color-accent-100); color:var(--color-accent-800);}
+.pill.resolved{background:var(--color-neutral-100); color:var(--color-neutral-800);}
+.chip{border-radius:0; background:var(--color-neutral-100); color:var(--color-neutral-800);}
+
+/* admin shell */
+.admin-topbar{border-radius:0; background:var(--color-accent-900); box-shadow:none;}
+.admin-topbar .brand{font:600 20px/1.2 var(--font-heading); color:var(--color-bg);}
+.admin-nav a{border-radius:0; color:var(--color-accent-300);}
+.admin-nav a:hover{background:var(--color-accent-800); color:var(--color-bg);}
+.admin-nav a.current{background:var(--warm-500); color:var(--warm-900);}
+.bottom-nav{background:var(--color-accent-900); box-shadow:none; border-top:1px solid var(--color-accent-800);}
+.bottom-nav .bn-item{border-radius:0; color:var(--color-accent-300); font-size:11.5px; border-top:2px solid transparent;}
+.bottom-nav .bn-item svg{stroke-width:1.5; width:22px; height:22px;}
+.bottom-nav .bn-item.active{color:var(--warm-300); border-top-color:var(--warm-500);}
+.bottom-nav .bn-item.active svg{stroke-width:1.75;}
+
+.data-table th{background:var(--color-accent-900); font-weight:500; letter-spacing:.02em;}
+.data-table td{border-bottom-color:color-mix(in srgb,var(--color-text) 8%,transparent);}
+.data-table tr:hover td{background:color-mix(in srgb,var(--color-text) 4%,transparent);}
+.table-scroll{border-radius:0;}
+@media (max-width:720px){
+  .data-table tr{border-radius:0; border:1px solid var(--color-divider); background:transparent;}
+  .data-table td::before{font-family:var(--font-body); font-weight:600; color:var(--color-accent-700);}
+  .card{padding:18px 14px;}
+}
+
+.item-card{border-radius:0; background:transparent; border:1px solid var(--color-divider);}
+.item-card:hover{transform:none; box-shadow:none; border-color:var(--color-accent);}
+.item-card .thumb{background-color:var(--warm-100); color:var(--warm-700);}
+.item-card .cap{font-size:14px;}
+.item-card.selected{border:2px solid var(--warm-500); box-shadow:none; background:var(--warm-100);}
+.rank-badge{border-radius:0; background:var(--warm-500); color:var(--warm-900); box-shadow:none;}
+.thumb-sm{border-radius:0; background-color:var(--warm-100); color:var(--warm-700);}
+.dropzone{border-radius:0; border:1px dashed var(--color-neutral-500); background:var(--color-surface);}
+.dropzone:hover{border-color:var(--color-accent);}
+.dropzone img{border-radius:0;}
+.vendor-logo-big-wrap{border-radius:0; box-shadow:none; border:1px solid var(--color-divider);}
+
+.modal-overlay{background:color-mix(in srgb,var(--color-neutral-900) 55%,transparent); backdrop-filter:none;}
+.modal-card{border-radius:0; background:var(--color-bg); box-shadow:var(--shadow-lg);}
+.modal-card h3{font-size:24px;}
+
+.seg-opt{border-radius:0; border:1px solid var(--color-divider); background:transparent; color:var(--color-text); font-size:14px; font-weight:500; min-height:44px;}
+.seg-opt:hover{background:color-mix(in srgb,var(--color-text) 7%,transparent);}
+.seg-opt.active{background:var(--color-accent); border-color:var(--color-accent); color:var(--color-bg);}
+
+.msg-item{border-radius:0; background:transparent; border:1px solid var(--color-divider);}
+.msg-item .msg-name{font-size:15px;}
+.msg-item .msg-meta{font-size:12.5px; color:var(--color-neutral-700);}
+.msg-item .msg-body{font-size:15px;}
+.msg-item .msg-reply{border-radius:0; background:var(--color-accent-100); border-left:2px solid var(--color-accent);}
+.msg-item .msg-reply .lbl{color:var(--color-accent-800);}
+
+.stat-box{border-radius:0; background:transparent; border:1px solid var(--color-divider); box-shadow:none;}
+.stat-box .num{font-size:30px;}
+.stat-box .lbl{color:var(--color-neutral-700);}
+
+.rank-list li{border-bottom-color:color-mix(in srgb,var(--color-text) 8%,transparent);}
+.rank-list .pos{border-radius:0; background:transparent; border:1px solid var(--color-accent); color:var(--color-accent-800); font-family:var(--font-heading); font-weight:600; font-size:16px; width:30px; height:30px;}
+.rank-list li:nth-child(1) .pos{background:var(--warm-500); border-color:var(--warm-500); color:var(--warm-900);}
+.rank-list li:nth-child(2) .pos,.rank-list li:nth-child(3) .pos{background:transparent;}
+.rank-list .bar-name{font-size:15px;}
+.rank-list .bar-bg{border-radius:0; background:var(--color-neutral-200);}
+.rank-list .bar-fill{border-radius:0; background:var(--color-accent);}
+.rank-list li:nth-child(1) .bar-fill{background:var(--warm-500);}
+
+/* ===== vote: big-photo menu cards for elderly users ===== */
+.card.vendor-card{display:flex; gap:12px; align-items:center; padding:12px; background:var(--warm-100); border-color:var(--warm-300); margin-bottom:16px;}
+.vendor-logo{width:64px; height:64px; flex:none; background:#fff center/contain no-repeat; border:1px solid var(--color-divider); display:grid; place-items:center; color:var(--color-neutral-500);}
+.vendor-logo svg{width:26px; height:26px;}
+.vendor-name{font:600 22px/1.2 var(--font-heading);}
+.vendor-meta{font-size:14px; color:var(--color-neutral-700);}
+.close-tag{display:inline-block; margin-top:4px; padding:2px 8px; border:1px solid var(--color-accent); color:var(--color-accent-800); font-size:13px; white-space:nowrap;}
+.grp-tabs{display:flex; gap:6px; overflow-x:auto; margin:0 -16px 14px; padding:0 16px; scrollbar-width:none;}
+.grp-tabs::-webkit-scrollbar{display:none;}
+.grp-tab{flex:none; min-height:42px; padding:6px 12px; font:inherit; font-size:14px; border:1px solid var(--color-divider); background:transparent; color:var(--color-text); white-space:nowrap; cursor:pointer;}
+.grp-tab.done{background:var(--color-accent-100); border-color:var(--color-accent); color:var(--color-accent-800);}
+.grp-tab.active{background:var(--color-accent); border-color:var(--color-accent); color:var(--color-bg);}
+.grp-head{margin:4px 0 12px;}
+.grp-kicker{font-size:13px; letter-spacing:.1em; color:var(--warm-700); font-weight:600;}
+.grp-title{font:600 30px/1.15 var(--font-heading); margin:2px 0 4px;}
+.grp-sub{font-size:17px; color:var(--color-neutral-800);}
+.slot-row{display:flex; align-items:center; gap:8px; margin-bottom:18px;}
+.slots{flex:1; display:grid; gap:4px;}
+.slot{height:44px; display:grid; place-items:center; font:600 22px var(--font-heading); border:1px dashed var(--color-neutral-400); color:var(--color-neutral-600);}
+.slot.on{border:1px solid var(--warm-500); background:var(--warm-500); color:var(--warm-900);}
+.menu-list{display:flex; flex-direction:column; gap:24px;}
+.menu-card{position:relative; border:1px solid var(--color-divider);}
+.menu-card.selected{border:2px solid var(--warm-500); background:var(--warm-100);}
+.menu-card.dim{opacity:.55;}
+.menu-photo{position:relative; aspect-ratio:4/3; background:var(--warm-100) center/cover no-repeat; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--warm-700); font-size:15px;}
+.menu-photo.has-img{cursor:zoom-in;}
+.menu-photo svg{width:44px; height:44px; stroke-width:1.5;}
+.menu-no{position:absolute; right:0; bottom:0; padding:4px 10px; background:var(--color-accent-900); color:var(--color-bg); font:600 15px var(--font-heading);}
+.menu-zoom{position:absolute; right:0; top:0; padding:6px 10px; background:color-mix(in srgb,var(--color-accent-900) 80%,transparent); color:var(--color-bg); font-size:13px;}
+.menu-rank{position:absolute; left:0; top:0; padding:6px 16px 8px; background:var(--warm-500); color:var(--warm-900); display:flex; flex-direction:column; align-items:center; line-height:1; font:600 42px var(--font-heading);}
+.menu-rank small{font:600 13px var(--font-body);}
+.menu-body{padding:12px 14px 14px; display:flex; flex-direction:column; gap:12px;}
+.menu-name{font-weight:700; font-size:22px; line-height:1.3;}
+.menu-btn{min-height:60px; width:100%; font:600 21px/1.2 var(--font-heading); border:1px solid var(--color-accent); background:var(--color-accent); color:var(--color-bg); cursor:pointer; touch-action:manipulation;}
+.menu-btn:hover{background:var(--color-accent-600);}
+.menu-btn.on{background:var(--color-bg); color:var(--warm-900); border-color:var(--warm-500);}
+.menu-btn:disabled{opacity:.45; cursor:not-allowed;}
+.action-bar{position:sticky; bottom:0; z-index:20; display:grid; grid-template-columns:auto 1fr; gap:8px; margin:22px -16px 0; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:var(--color-bg); border-top:1px solid var(--color-divider);}
+.action-bar .btn-outline{min-height:56px; padding:0 18px;}
+.review-edit{margin-left:auto;}
+.photo-view{position:fixed; inset:0; z-index:60; background:rgba(12,18,24,.94); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; gap:16px; color:#fff;}
+.photo-view img{max-width:100%; max-height:72vh; object-fit:contain;}
+.photo-view .cap{font:600 26px/1.2 var(--font-heading); text-align:center;}
+.photo-view button{min-height:54px; padding:0 30px; font:600 20px var(--font-heading); background:transparent; color:#fff; border:1px solid #fff; cursor:pointer;}
+
+</style>
+<style>
+/* ===== หน้าสรุปผลความพึงพอใจ (ธีมเดียวกับระบบครัวหมุนเวียน) ===== */
+:root{ --l5:var(--color-accent-700); --l4:var(--color-accent-500); --l3:var(--warm-300); --l2:var(--warm-500); --l1:var(--warm-700); }
+.scroll-area{overflow-y:auto; -webkit-overflow-scrolling:touch; padding-left:max(12px, env(safe-area-inset-left)); padding-right:max(12px, env(safe-area-inset-right)); padding-bottom:30px;}
+.wrap.wide{max-width:960px; margin:0 auto;}
+.admin-topbar{display:flex; flex-wrap:wrap; align-items:center; gap:4px 16px;}
+.admin-topbar .sub{font-size:13px; color:var(--color-accent-300); width:100%;}
+.loading{text-align:center; color:var(--color-neutral-700); padding:40px;}
+.filter-lbl{font-size:14px; font-weight:600; color:var(--color-neutral-800); margin:4px 0 8px;}
+.date-custom{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:-4px 0 12px;}
+.date-custom input{flex:1; min-width:140px; margin:0;}
+.export-row{display:flex; gap:8px; flex-wrap:wrap;}
+.export-row .submit-btn{flex:1 1 220px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:18px; min-height:52px;}
+.export-row .btn-outline{flex:0 1 auto; padding:0 18px;}
+.export-row svg{width:20px; height:20px;}
+
+.overview{display:flex; gap:20px; align-items:center; flex-wrap:wrap;}
+.score-seal{position:relative; flex:none; width:150px; height:150px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--warm-100); border:1px solid var(--warm-500);}
+.score-seal .score{font:600 56px/1 var(--font-heading); color:var(--color-text);}
+.score-seal .label{font-size:14px; font-weight:600; color:var(--warm-700); margin-top:6px;}
+.overview-txt{flex:1; min-width:220px;}
+.overview-txt .t{font:600 22px/1.2 var(--font-heading); margin-bottom:6px;}
+.overview-txt .s{font-size:15px; color:var(--color-neutral-800);}
+.stat-row{margin:18px 0 0;}
+.stat-box{flex:1 1 140px;}
+.stat-box.warn .num{color:var(--warm-700);}
+
+.unit-row{margin-bottom:16px;}
+.unit-row .head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:15px; margin-bottom:6px;}
+.unit-row .name{font-weight:600; line-height:1.4; flex:1; min-width:0;}
+.unit-row .tag{display:inline-block; font-size:12px; font-weight:500; padding:1px 7px; margin-left:4px; background:var(--color-neutral-100); color:var(--color-neutral-800); vertical-align:2px;}
+.unit-row .best{background:var(--warm-500); color:var(--warm-900);}
+.unit-row .val{font:600 22px var(--font-heading); white-space:nowrap;}
+.unit-row .count{font-size:13px; color:var(--color-neutral-700); font-weight:400;}
+.bar{height:12px; background:var(--color-neutral-200);}
+.bar i{display:block; height:100%;}
+.cat-row{margin-bottom:14px;}
+.cat-head{display:flex; justify-content:space-between; gap:10px; font-size:15px; margin-bottom:5px;}
+.cat-head .name{flex:1; min-width:0;}
+.cat-head .val{font:600 19px var(--font-heading); white-space:nowrap;}
+.cat-group{margin-bottom:22px;}
+.cat-group:last-child{margin-bottom:0;}
+.cat-group-head{display:flex; align-items:center; gap:10px; margin-bottom:12px; font-weight:600;}
+.cat-group-head .chip-ic{width:30px; height:30px; display:grid; place-items:center;}
+.cat-group-head .chip-ic svg{width:17px; height:17px;}
+
+.wish-item{display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid color-mix(in srgb,var(--color-text) 8%,transparent);}
+.wish-item:last-child{border-bottom:none;}
+.wish-rank{flex:none; width:30px; height:30px; display:grid; place-items:center; border:1px solid var(--color-accent); color:var(--color-accent-800); font:600 16px var(--font-heading);}
+.wish-rank.r1{background:var(--warm-500); border-color:var(--warm-500); color:var(--warm-900);}
+.wish-name{flex:1; min-width:0; font-size:16px; font-weight:500;}
+.wish-count{font:600 18px var(--font-heading); color:var(--warm-700);}
+.comment-item{border-left:2px solid var(--warm-500); padding:4px 0 4px 14px; margin-bottom:14px; font-size:15px; line-height:1.6;}
+.comment-item .who{font-weight:600; color:var(--color-accent-800); font-size:13.5px; margin-bottom:2px;}
+
+.fb-cat-row{display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:15px;}
+.fb-cat-row .n{width:110px; flex:none;}
+.fb-cat-row .bar{flex:1;}
+.fb-cat-row .c{width:34px; text-align:right; font:600 18px var(--font-heading);}
+.fb-link{display:flex; align-items:center; justify-content:center; gap:6px; text-decoration:none; margin-top:14px;}
+.sec-head .act{margin-left:auto;}
+@media (max-width:720px){ .score-seal{width:120px; height:120px;} .score-seal .score{font-size:46px;} .stat-box{flex:1 1 45%;} }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="header-band">
-  <h1>สรุปผลความพึงพอใจ<br/>ครัวหมุนเวียน</h1>
-  <div class="rule"></div>
+<div class="scroll-area">
+<div class="wrap wide">
+  <div class="admin-topbar">
+    <div class="brand">ครัวหมุนเวียน · สรุปผลความพึงพอใจ</div>
+    <div class="sub" id="updatedAt"></div>
   </div>
-  <div id="updatedAt" class="updated"></div>
   <div id="viewDashboard"></div>
+</div>
+</div>
+<div class="bottom-nav">
+  <a href="rk_admin.html#vendors" class="bn-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v10h16V9"/><path d="M9 19v-6h6v6"/></svg>
+    <span>ร้านค้า</span>
+  </a>
+  <a href="rk_admin.html#menusets" class="bn-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
+    <span>เซทเมนู</span>
+  </a>
+  <a href="rk_admin.html#schedule" class="bn-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+    <span>ตาราง</span>
+  </a>
+  <a href="rk_admin_results.html#results" class="bn-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+    <span>ผลโหวต</span>
+  </a>
+  <a href="rk_admin_results.html#feedback" class="bn-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 9 9 0 0 1-3.3-.6L3 21l1.7-4.1A8.4 8.4 0 1 1 21 11.5Z"/></svg>
+    <span>ข้อความ</span>
+  </a>
+  <a href="dashboard.html" class="bn-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8Z"/></svg>
+    <span>ประเมิน</span>
+  </a>
 </div>
 
 <script>
 const SUPABASE_URL = 'https://uhefxwccuqagnbrbidbh.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVoZWZ4d2NjdXFhZ25icmJpZGJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMDI1NDYsImV4cCI6MjEwMTU3ODU0Nn0.EE5QWPVjSkZpUTU37hgiz4LsGMAfq87dxFOkt9OYynY';
 const TABLE = 'food_survey_responses';
-
-if (SUPABASE_URL.includes('YOUR_') || SUPABASE_ANON_KEY.includes('YOUR_')) {
-  document.getElementById('viewDashboard').innerHTML =
-    '<div class="card"><div class="error">ยังไม่ได้ตั้งค่า Supabase — กรุณาใส่ค่า SUPABASE_URL และ SUPABASE_ANON_KEY จริง ในไฟล์นี้ แล้วอัปโหลดใหม่</div></div>';
-  throw new Error('Supabase config not set.');
-}
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
 });
 
-const UNITS = [
-  'อาคารเรียน-รู้-เรื่องโขน',
-  'แผนกนักเรียนช่าง',
-  'พิพิธภัณฑ์ศิลป์แผ่นดิน',
-  'โครงการก่อสร้างศิลปาชีพ ตำบลเกาะเกิด',
-  'อาคารศิลปาชีพ ตำบลช้างใหญ่',
-  'อาคารเก็บผลิตภัณฑ์ศิลปาชีพ',
-  'บุคคลอื่นๆ ที่มาใช้บริการ (โปรดระบุ)',
-];
+// หน่วยงาน/กลุ่ม ชุดเดียวกับ rk_feedback / rk_vote / rk_admin_results
+const UNIT_LOCATION = {
+  'อาคารเรียน-รู้-เรื่องโขน': 'g1',
+  'แผนกนักเรียนช่าง': 'g1',
+  'อาคารศิลปาชีพ ตำบลช้างใหญ่': 'g2',
+  'อาคารเก็บผลิตภัณฑ์ศิลปาชีพ': 'g3',
+  'พิพิธภัณฑ์ศิลป์แผ่นดิน': 'g4',
+  'โครงการก่อสร้างศิลปาชีพ ตำบลเกาะเกิด': 'g5',
+};
 const OTHER_UNIT = 'บุคคลอื่นๆ ที่มาใช้บริการ (โปรดระบุ)';
-const UNITS_SHORT = Object.fromEntries(UNITS.map(u => [u, u]));
-function displayUnit(r){
-  return r.unit === OTHER_UNIT ? `อื่นๆ: ${r.other_unit_name || '-'}` : (UNITS_SHORT[r.unit] || r.unit);
-}
+const UNITS = [...Object.keys(UNIT_LOCATION), OTHER_UNIT];
+const GROUPS = [
+  { key:'all', label:'ทุกกลุ่ม' },
+  { key:'g1', label:'กลุ่มที่ 1' }, { key:'g2', label:'กลุ่มที่ 2' }, { key:'g3', label:'กลุ่มที่ 3' },
+  { key:'g4', label:'กลุ่มที่ 4' }, { key:'g5', label:'กลุ่มที่ 5' },
+  { key:'other', label:'บุคคลอื่นๆ' },
+];
+function groupOfUnit(u){ return UNIT_LOCATION[u] || 'other'; }
+function groupLabel(k){ return (GROUPS.find(g=>g.key===k)||{}).label || k; }
+function displayUnit(r){ return r.unit === OTHER_UNIT ? `อื่นๆ: ${r.other_unit_name || '-'}` : r.unit; }
+
 const FOOD_CATS = [
   { key:'taste', label:'รสชาติของอาหารโดยรวม' },
   { key:'freshness', label:'ความสด สะอาด และคุณภาพของวัตถุดิบ' },
@@ -180,29 +642,48 @@ const WISH_FIELDS = [
   { key:'dessert_suggestions', keys:['dessert_suggestions'], label:'ขนม/ผลไม้' },
   { key:'legacy_other', keys:['snack_suggestions','other_menu_suggestions'], label:'เมนูอื่นๆ' },
 ];
+// หมวด/สถานะของกล่องข้อความ ตรงกับ rk_feedback
+const FB_CATEGORIES = [
+  { key:'food_quality', label:'คุณภาพอาหาร' },
+  { key:'service', label:'การบริการ' },
+  { key:'quantity', label:'ปริมาณอาหาร' },
+  { key:'hygiene', label:'ความสะอาด' },
+  { key:'other', label:'อื่น ๆ' },
+];
+function fbStatusLabel(s){ return { new:'รอตรวจสอบ', acknowledged:'รับทราบแล้ว', resolved:'ดำเนินการแล้ว' }[s] || s; }
+
+const THAI_MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function fmtDate(d){ d=new Date(d); return d.getDate()+' '+THAI_MONTHS[d.getMonth()]+' '+(d.getFullYear()+543); }
+function fmtDateTime(d){ d=new Date(d); return fmtDate(d)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' น.'; }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 const ICONS = {
-  building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 21v-4h6v4"/><path d="M8 7h1M11 7h1M14 7h1M8 11h1M11 11h1M14 11h1"/></svg>',
-  bowl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 6 0 0 1-18 0Z"/><path d="M12 3c-1 1-1 2 0 3M9 3.8c-.7 1-.7 1.6 0 2.6M15 3.8c.7 1 .7 1.6 0 2.6"/></svg>',
-  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16c2-1 3-3 3-6a5 5 0 0 1 10 0c0 3 1 5 3 6Z"/><path d="M2 16h20"/><circle cx="12" cy="19.2" r="1.3"/></svg>',
-  quill: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10.5 20.5h3"/><path d="M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 3Z"/></svg>',
-  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3-6 7-6s7 2.7 7 6"/><circle cx="17" cy="8.5" r="2.3"/><path d="M17 14c2.6.4 4.5 2.4 4.5 6"/></svg>',
-  star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8Z"/></svg>',
-  chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>',
-  crown: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M3 8l4 3 5-6 5 6 4-3-2 10H5L3 8Z"/></svg>',
-  sheet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 9h18M9 9v11"/></svg>',
-  doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6"/></svg>',
+  building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 21v-4h6v4"/><path d="M8 7h1M11 7h1M14 7h1M8 11h1M11 11h1M14 11h1"/></svg>',
+  bowl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 6 0 0 1-18 0Z"/><path d="M12 3c-1 1-1 2 0 3M9 3.8c-.7 1-.7 1.6 0 2.6M15 3.8c.7 1 .7 1.6 0 2.6"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16c2-1 3-3 3-6a5 5 0 0 1 10 0c0 3 1 5 3 6Z"/><path d="M2 16h20"/><circle cx="12" cy="19.2" r="1.3"/></svg>',
+  quill: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10.5 20.5h3"/><path d="M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 3Z"/></svg>',
+  chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 9 9 0 0 1-3.3-.6L3 21l1.7-4.1A8.4 8.4 0 1 1 21 11.5Z"/></svg>',
+  doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6"/></svg>',
+  calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
 };
 
-let dash = { loading:false, error:'', responses:[], wishFilter:'all', dateFilter:'all', customFrom:'', customTo:'' };
+let dash = { loading:false, error:'', responses:[], feedback:[], locById:{}, wishFilter:'all', dateFilter:'all', customFrom:'', customTo:'', group:'all' };
 
 async function loadDashboard(){
   dash.loading = true; dash.error = ''; renderDashboard();
   try{
-    const { data, error } = await sb.from(TABLE).select('*').order('created_at', { ascending:false }).range(0, 4999);
-    if(error) throw error;
-    dash.responses = data || [];
-    document.getElementById('updatedAt').textContent = 'อัปเดตล่าสุด: ' + new Date().toLocaleString('th-TH');
+    const [r1, r2, r3] = await Promise.all([
+      sb.from(TABLE).select('*').order('created_at', { ascending:false }).range(0, 4999),
+      sb.from('rk_feedback').select('id,location_id,unit,category,status,message,anonymous,admin_reply,created_at').order('created_at', { ascending:false }).range(0, 4999),
+      sb.from('rk_locations').select('id,code,short_name'),
+    ]);
+    if(r1.error) throw r1.error;
+    dash.responses = r1.data || [];
+    // กล่องข้อความโหลดไม่ได้ ไม่ให้ทั้งหน้าพัง — แสดงเฉพาะส่วนแบบประเมินต่อได้
+    dash.feedback = r2.error ? null : (r2.data || []);
+    dash.locById = {}; (r3.data||[]).forEach(l => dash.locById[l.id] = l);
+    document.getElementById('updatedAt').textContent = 'อัปเดตล่าสุด: ' + fmtDateTime(new Date());
   }catch(e){
     console.error(e);
     const detail = e?.message || e?.error_description || e?.hint || (typeof e === 'string' ? e : '');
@@ -213,27 +694,30 @@ async function loadDashboard(){
   }
 }
 
-function getFilteredResponses(){
-  const all = dash.responses;
-  if(dash.dateFilter === 'all') return all;
+function dateBounds(){
   let from = null, to = null;
   const now = new Date();
-  if(dash.dateFilter === 'today'){
-    from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  } else if(dash.dateFilter === '7d'){
-    from = new Date(now.getTime() - 7*24*60*60*1000);
-  } else if(dash.dateFilter === '30d'){
-    from = new Date(now.getTime() - 30*24*60*60*1000);
-  } else if(dash.dateFilter === 'custom'){
+  if(dash.dateFilter === 'today') from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  else if(dash.dateFilter === '7d') from = new Date(now.getTime() - 7*864e5);
+  else if(dash.dateFilter === '30d') from = new Date(now.getTime() - 30*864e5);
+  else if(dash.dateFilter === 'custom'){
     if(dash.customFrom) from = new Date(dash.customFrom + 'T00:00:00');
     if(dash.customTo) to = new Date(dash.customTo + 'T23:59:59');
   }
-  return all.filter(r => {
-    const t = new Date(r.created_at);
-    if(from && t < from) return false;
-    if(to && t > to) return false;
-    return true;
-  });
+  return { from, to };
+}
+function inRange(ts){ const { from, to } = dateBounds(); const t = new Date(ts); return !(from && t < from) && !(to && t > to); }
+function getFilteredResponses(){
+  return dash.responses.filter(r => inRange(r.created_at) && (dash.group==='all' || groupOfUnit(r.unit)===dash.group));
+}
+function feedbackGroup(f){
+  if(f.unit === OTHER_UNIT) return 'other';
+  const loc = dash.locById[f.location_id];
+  return loc ? loc.code : 'other';
+}
+function getFilteredFeedback(){
+  if(!dash.feedback) return null;
+  return dash.feedback.filter(f => inRange(f.created_at) && (dash.group==='all' || feedbackGroup(f)===dash.group));
 }
 
 function computeStats(responses){
@@ -241,197 +725,177 @@ function computeStats(responses){
   let sum=0, n=0;
   responses.forEach(r => ALL_CATS.forEach(c => { const v=r.ratings?.[c.key]; if(v>0){sum+=v;n+=1;} }));
   const overallAvg = n ? sum/n : 0;
-
   const categoryAverages = ALL_CATS.map(c => {
     const vals = responses.map(r => r.ratings?.[c.key]).filter(v => v>0);
     return { key:c.key, label:c.label, avg: vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0 };
   });
-
-  const unitStats = UNITS.map(u => {
+  const unitsInScope = dash.group==='all' ? UNITS : UNITS.filter(u => groupOfUnit(u)===dash.group);
+  const unitStats = unitsInScope.map(u => {
     const list = responses.filter(r => r.unit === u);
     let s=0, cnt=0;
     list.forEach(r => ALL_CATS.forEach(c => { const v=r.ratings?.[c.key]; if(v>0){s+=v;cnt+=1;} }));
-    const otherNames = u === OTHER_UNIT
-      ? [...new Set(list.map(r => r.other_unit_name).filter(Boolean))]
-      : [];
-    return { unit:u, short:UNITS_SHORT[u], count:list.length, avg: cnt ? s/cnt : 0, otherNames };
+    const otherNames = u === OTHER_UNIT ? [...new Set(list.map(r => r.other_unit_name).filter(Boolean))] : [];
+    return { unit:u, short:u, group:groupOfUnit(u), count:list.length, avg: cnt ? s/cnt : 0, otherNames };
   });
-
   function tally(fieldKeys){
     const freq = {};
-    responses.forEach(r => {
-      fieldKeys.forEach(fk => {
-        const txt = r[fk];
-        if(!txt) return;
-        txt.split(/[,\n،、]/).map(s=>s.trim()).filter(Boolean).forEach(item => {
-          const key = item.toLowerCase();
-          if(!freq[key]) freq[key] = { label:item, count:0 };
-          freq[key].count += 1;
-        });
+    responses.forEach(r => fieldKeys.forEach(fk => {
+      const txt = r[fk]; if(!txt) return;
+      txt.split(/[,\n،、]/).map(s=>s.trim()).filter(Boolean).forEach(item => {
+        const key = item.toLowerCase();
+        if(!freq[key]) freq[key] = { label:item, count:0 };
+        freq[key].count += 1;
       });
-    });
+    }));
     return Object.values(freq).sort((a,b)=>b.count-a.count).slice(0,10);
   }
   const wishlists = { all: tally(WISH_FIELDS.flatMap(f=>f.keys)) };
   WISH_FIELDS.forEach(f => { wishlists[f.key] = tally(f.keys); });
-
   const recentComments = responses.filter(r => r.additional_comments).slice(0,6);
   const bestUnit = unitStats.filter(u=>u.count>0).sort((a,b)=>b.avg-a.avg)[0];
-
   return { total, overallAvg, categoryAverages, unitStats, wishlists, recentComments, bestUnit };
 }
+function computeFeedbackStats(list){
+  if(!list) return null;
+  const byStatus = { new:0, acknowledged:0, resolved:0 };
+  const byCat = {}; FB_CATEGORIES.forEach(c => byCat[c.key]=0);
+  list.forEach(f => { if(byStatus[f.status]!==undefined) byStatus[f.status]++; byCat[f.category] = (byCat[f.category]||0)+1; });
+  return { total:list.length, byStatus, byCat, recent:list.slice(0,5) };
+}
 
-function stampLabel(s){
-  return s>=4.5?'เยี่ยมยอด' : s>=3.5?'พอใจดี' : s>=2.5?'ปานกลาง' : 'ควรปรับปรุง';
-}
-function catColor(avg){
-  return avg>=4.5?'var(--l5)': avg>=3.5?'var(--l4)': avg>=2.5?'var(--l3)': avg>=1.5?'var(--l2)':'var(--l1)';
-}
+function stampLabel(s){ return s>=4.5?'เยี่ยมยอด' : s>=3.5?'พอใจดี' : s>=2.5?'ปานกลาง' : 'ควรปรับปรุง'; }
+function catColor(avg){ return avg>=4.5?'var(--l5)': avg>=3.5?'var(--l4)': avg>=2.5?'var(--l3)': avg>=1.5?'var(--l2)':'var(--l1)'; }
+// html2canvas อ่าน oklch/color-mix ไม่ได้ — PDF ใช้ค่า hex ที่ใกล้เคียงธีมแทน
+const PDF = { text:'#1d1f20', soft:'#5d5d60', accent:'#5980a6', accentDark:'#2c455d', accentBg:'#eef6ff', track:'#e7e7ea', warmBg:'#fbf1e0', warm:'#e3a03f', warmDark:'#9a5a1f', l5:'#416180', l4:'#749dc4', l3:'#f0c98a', l2:'#e3a03f', l1:'#9a5a1f' };
+function catColorHex(avg){ return avg>=4.5?PDF.l5: avg>=3.5?PDF.l4: avg>=2.5?PDF.l3: avg>=1.5?PDF.l2:PDF.l1; }
+
 function setWishFilter(key){ dash.wishFilter = key; renderDashboard(); }
 function setDateFilter(key){ dash.dateFilter = key; renderDashboard(); }
-function setCustomDate(which, val){
-  if(which==='from') dash.customFrom = val; else dash.customTo = val;
-  dash.dateFilter = 'custom';
-  renderDashboard();
-}
-
+function setGroup(key){ dash.group = key; renderDashboard(); }
+function setCustomDate(which, val){ if(which==='from') dash.customFrom = val; else dash.customTo = val; dash.dateFilter = 'custom'; renderDashboard(); }
 function dateRangeLabel(){
   if(dash.dateFilter==='today') return 'วันนี้';
   if(dash.dateFilter==='7d') return '7 วันล่าสุด';
   if(dash.dateFilter==='30d') return '30 วันล่าสุด';
-  if(dash.dateFilter==='custom') return `${dash.customFrom || '…'} ถึง ${dash.customTo || '…'}`;
+  if(dash.dateFilter==='custom') return `${dash.customFrom ? fmtDate(dash.customFrom+'T00:00:00') : '…'} ถึง ${dash.customTo ? fmtDate(dash.customTo+'T00:00:00') : '…'}`;
   return 'ทั้งหมด';
 }
+function scopeLabel(){ return dateRangeLabel() + ' · ' + groupLabel(dash.group); }
 
-function sizedIcon(name, size){
-  return ICONS[name].replace('<svg ', `<svg width="${size}" height="${size}" `);
-}
-
+/* ---------- PDF ---------- */
+const PDF_FONT = '"Bai Jamjuree","Barlow",sans-serif';
+function sizedIcon(name, size){ return ICONS[name].replace('<svg ', `<svg width="${size}" height="${size}" `); }
 function printSectionHead(iconName, bg, color, title, sub){
   return `<div style="display:flex; align-items:center; gap:12px; margin:0 0 16px;">
-    <div style="width:36px;height:36px;border-radius:50%;background:${bg};color:${color};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${sizedIcon(iconName,18)}</div>
-    <div><div style="font-family:'Prompt',sans-serif;font-weight:700;font-size:16px;color:#1F2D3D;">${title}</div>${sub?`<div style="font-size:11.5px;color:#5B6B85;margin-top:1px;">${sub}</div>`:''}</div>
+    <div style="width:36px;height:36px;background:${bg};color:${color};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${sizedIcon(iconName,18)}</div>
+    <div><div style="font-weight:600;font-size:17px;color:${PDF.text};">${title}</div>${sub?`<div style="font-size:11.5px;color:${PDF.soft};margin-top:1px;">${sub}</div>`:''}</div>
   </div>`;
 }
-
 function printBarRow(label, valueLabel, pct, color, sub){
   return `<div style="margin-bottom:13px;">
     <div style="display:flex; justify-content:space-between; gap:10px; font-size:13px; margin-bottom:4px;">
-      <span style="font-weight:600; color:#1F2D3D;">${label}</span>
-      <span style="font-weight:700; color:#1F2D3D; flex-shrink:0;">${valueLabel}</span>
+      <span style="font-weight:500; color:${PDF.text};">${label}</span>
+      <span style="font-weight:700; color:${PDF.text}; flex-shrink:0;">${valueLabel}</span>
     </div>
-    <div style="height:9px; background:rgba(31,45,61,0.08); border-radius:5px; overflow:hidden;">
-      <div style="height:100%; width:${pct}%; background:${color}; border-radius:5px;"></div>
-    </div>
-    ${sub ? `<div style="font-size:11px;color:#5B6B85;margin-top:3px;">${sub}</div>` : ''}
+    <div style="height:9px; background:${PDF.track};"><div style="height:100%; width:${pct}%; background:${color};"></div></div>
+    ${sub ? `<div style="font-size:11px;color:${PDF.soft};margin-top:3px;">${sub}</div>` : ''}
   </div>`;
 }
-
 function printPageShell(bodyHtml, pageNum, totalPages){
   const div = document.createElement('div');
-  div.style.cssText = 'position:absolute; left:-9999px; top:0; width:794px; min-height:1123px; background:#FFFFFF; font-family:"Kanit",sans-serif; color:#1F2D3D; box-sizing:border-box; padding:50px 50px 36px; display:flex; flex-direction:column;';
+  div.style.cssText = `position:absolute; left:-9999px; top:0; width:794px; min-height:1123px; background:#FFFFFF; font-family:${PDF_FONT}; color:${PDF.text}; box-sizing:border-box; padding:50px 50px 36px; display:flex; flex-direction:column;`;
   div.innerHTML = `
     <div style="flex:1;">${bodyHtml}</div>
-    <div style="margin-top:20px; padding-top:14px; border-top:1px solid rgba(31,45,61,0.12); display:flex; justify-content:space-between; font-size:10.5px; color:#5B6B85;">
-      <span>รายงานความพึงพอใจ ครัวหมุนเวียน</span>
-      <span>หน้า ${pageNum}/${totalPages}</span>
+    <div style="margin-top:20px; padding-top:14px; border-top:1px solid ${PDF.track}; display:flex; justify-content:space-between; font-size:10.5px; color:${PDF.soft};">
+      <span>รายงานความพึงพอใจ ครัวหมุนเวียน</span><span>หน้า ${pageNum}/${totalPages}</span>
     </div>`;
   return div;
 }
-
 function printReportHeader(s){
   return `
-    <div style="border-top:4px solid #D9A628; margin-bottom:22px;"></div>
-    <div style="text-align:center; color:#D9A628; font-size:12px; letter-spacing:2px; font-weight:700; margin-bottom:8px;">รายงานสำหรับผู้บริหาร</div>
-    <div style="text-align:center; font-family:'Prompt',sans-serif; font-weight:900; font-size:24px; margin-bottom:16px;">สรุปผลความพึงพอใจ ครัวหมุนเวียน</div>
-    <div style="display:flex; justify-content:center; gap:28px; font-size:12.5px; font-weight:600; margin-bottom:28px; padding-bottom:20px; border-bottom:1px solid rgba(31,45,61,0.12);">
-      <span>ช่วงเวลา: ${dateRangeLabel()}</span>
-      <span>จำนวนแบบประเมิน: ${s.total} ฉบับ</span>
-      <span>สร้างเมื่อ: ${new Date().toLocaleString('th-TH')}</span>
+    <div style="background:#1d2d3d; color:#fff; padding:18px 22px; margin-bottom:22px;">
+      <div style="font-size:11px; letter-spacing:2px; color:#b5d9fd; margin-bottom:4px;">รายงานสำหรับผู้บริหาร</div>
+      <div style="font-weight:600; font-size:24px;">สรุปผลความพึงพอใจ ครัวหมุนเวียน</div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px 24px; font-size:12.5px; font-weight:500; margin-bottom:26px; padding-bottom:18px; border-bottom:1px solid ${PDF.track};">
+      <span>ช่วงเวลา: ${dateRangeLabel()}</span><span>กลุ่ม: ${groupLabel(dash.group)}</span>
+      <span>จำนวนแบบประเมิน: ${s.total} ฉบับ</span><span>สร้างเมื่อ: ${fmtDateTime(new Date())}</span>
     </div>`;
 }
-
 async function exportPDF(){
   const filtered = getFilteredResponses();
   if(!filtered.length){ alert('ไม่มีข้อมูลในช่วงเวลาที่เลือก'); return; }
   const btn = document.getElementById('pdfBtn');
   const originalLabel = btn.innerHTML;
   btn.disabled = true; btn.innerHTML = 'กำลังสร้าง PDF…';
-
   const s = computeStats(filtered);
+  const fs = computeFeedbackStats(getFilteredFeedback());
   const pages = [];
 
-  // ---------- Page 1: overview ----------
-  const scoreColor = catColor(s.overallAvg);
   let p1 = printReportHeader(s);
-  p1 += `<div style="display:flex; gap:28px; align-items:center; margin-bottom:32px;">
-    <div style="width:150px;height:150px;border-radius:50%;border:3px solid #D9A628;box-shadow:0 0 0 6px rgba(217,166,40,0.12); display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0;">
-      <div style="font-size:48px; font-weight:700;">${s.overallAvg.toFixed(1)}</div>
-      <div style="font-size:12px; font-weight:700; letter-spacing:1px; color:#D9A628; text-transform:uppercase;">${stampLabel(s.overallAvg)}</div>
+  p1 += `<div style="display:flex; gap:28px; align-items:center; margin-bottom:30px;">
+    <div style="width:150px;height:150px;background:${PDF.warmBg};border:1px solid ${PDF.warm};display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="font-size:50px; font-weight:600;">${s.overallAvg.toFixed(1)}</div>
+      <div style="font-size:13px; font-weight:600; color:${PDF.warmDark};">${stampLabel(s.overallAvg)}</div>
     </div>
     <div style="flex:1;">
-      <div style="font-family:'Prompt',sans-serif; font-weight:700; font-size:17px; margin-bottom:10px;">คะแนนความพึงพอใจโดยรวม</div>
-      ${s.bestUnit ? `<div style="font-size:13.5px; margin-bottom:6px;">หน่วยงานยอดเยี่ยม: <strong>${s.bestUnit.short}</strong> (${s.bestUnit.avg.toFixed(1)})</div>` : ''}
-      <div style="display:flex; gap:14px; margin-top:14px;">
-        <div style="flex:1; background:#EAF4FB; border-radius:8px; padding:12px; text-align:center;"><div style="font-size:22px;font-weight:700;">${s.total}</div><div style="font-size:11px;color:#5B6B85;">แบบประเมิน</div></div>
-        <div style="flex:1; background:#EAF4FB; border-radius:8px; padding:12px; text-align:center;"><div style="font-size:22px;font-weight:700;">${s.overallAvg.toFixed(1)}</div><div style="font-size:11px;color:#5B6B85;">คะแนนเฉลี่ย</div></div>
-        <div style="flex:1; background:#EAF4FB; border-radius:8px; padding:12px; text-align:center;"><div style="font-size:22px;font-weight:700;">${s.unitStats.filter(u=>u.count>0).length}/${s.unitStats.length}</div><div style="font-size:11px;color:#5B6B85;">หน่วยงานตอบแล้ว</div></div>
+      <div style="font-weight:600; font-size:17px; margin-bottom:10px;">คะแนนความพึงพอใจโดยรวม</div>
+      ${s.bestUnit ? `<div style="font-size:13.5px; margin-bottom:6px;">หน่วยงานคะแนนสูงสุด: <strong>${s.bestUnit.short}</strong> (${s.bestUnit.avg.toFixed(1)})</div>` : ''}
+      <div style="display:flex; gap:10px; margin-top:14px;">
+        <div style="flex:1; border:1px solid ${PDF.track}; padding:12px; text-align:center;"><div style="font-size:22px;font-weight:600;">${s.total}</div><div style="font-size:11px;color:${PDF.soft};">แบบประเมิน</div></div>
+        <div style="flex:1; border:1px solid ${PDF.track}; padding:12px; text-align:center;"><div style="font-size:22px;font-weight:600;">${s.unitStats.filter(u=>u.count>0).length}/${s.unitStats.length}</div><div style="font-size:11px;color:${PDF.soft};">หน่วยงานตอบแล้ว</div></div>
+        ${fs ? `<div style="flex:1; border:1px solid ${PDF.track}; padding:12px; text-align:center;"><div style="font-size:22px;font-weight:600;">${fs.total}</div><div style="font-size:11px;color:${PDF.soft};">ข้อความแจ้งปัญหา</div></div>` : ''}
       </div>
     </div>
   </div>`;
-  p1 += printSectionHead('chart','#EAF4FB','#5B6B85','คะแนนเฉลี่ยแยกตามหน่วยงาน');
+  p1 += printSectionHead('chart',PDF.accentBg,PDF.accentDark,'คะแนนเฉลี่ยแยกตามหน่วยงาน');
   p1 += s.unitStats.map(u => printBarRow(
-    (u.unit===s.bestUnit?.unit?'★ ':'') + u.short,
-    u.count ? u.avg.toFixed(1) : '-',
-    u.count ? (u.avg/5*100) : 1,
-    u.count ? catColor(u.avg) : '#DCEEFC',
+    (u.unit===s.bestUnit?.unit?'★ ':'') + u.short + (u.group!=='other' ? ` (${groupLabel(u.group)})` : ''),
+    u.count ? u.avg.toFixed(1) : '-', u.count ? (u.avg/5*100) : 1, u.count ? catColorHex(u.avg) : PDF.track,
     u.count ? `${u.count} ฉบับ` : 'ยังไม่มีข้อมูล'
   )).join('');
   pages.push(p1);
 
-  // ---------- Page 2: category breakdown ----------
-  let p2 = printSectionHead('bowl','#DFF7F3','#0F766E','คะแนนเฉลี่ยแยกตามหัวข้อ — ด้านอาหาร','ข้อ 1–5');
-  p2 += FOOD_CATS.map(c => {
-    const cs = s.categoryAverages.find(x=>x.key===c.key);
-    return printBarRow(c.label, cs.avg.toFixed(2), cs.avg/5*100, catColor(cs.avg));
-  }).join('');
+  let p2 = printSectionHead('bowl',PDF.warmBg,PDF.warmDark,'คะแนนเฉลี่ยแยกตามหัวข้อ — ด้านอาหาร','ข้อ 1–5');
+  p2 += FOOD_CATS.map(c => { const cs = s.categoryAverages.find(x=>x.key===c.key); return printBarRow(c.label, cs.avg.toFixed(2), cs.avg/5*100, catColorHex(cs.avg)); }).join('');
   p2 += `<div style="height:14px;"></div>`;
-  p2 += printSectionHead('bell','#E9ECFC','#4451C7','คะแนนเฉลี่ยแยกตามหัวข้อ — ด้านการบริการ','ข้อ 6–10');
-  p2 += SERVICE_CATS.map(c => {
-    const cs = s.categoryAverages.find(x=>x.key===c.key);
-    return printBarRow(c.label, cs.avg.toFixed(2), cs.avg/5*100, catColor(cs.avg));
-  }).join('');
+  p2 += printSectionHead('bell',PDF.accentBg,PDF.accentDark,'คะแนนเฉลี่ยแยกตามหัวข้อ — ด้านการบริการ','ข้อ 6–10');
+  p2 += SERVICE_CATS.map(c => { const cs = s.categoryAverages.find(x=>x.key===c.key); return printBarRow(c.label, cs.avg.toFixed(2), cs.avg/5*100, catColorHex(cs.avg)); }).join('');
+  if(fs && fs.total){
+    p2 += `<div style="height:14px;"></div>`;
+    p2 += printSectionHead('chat',PDF.warmBg,PDF.warmDark,'กล่องข้อความแจ้งปัญหา',`${fs.total} ข้อความ · รอตรวจสอบ ${fs.byStatus.new} · รับทราบแล้ว ${fs.byStatus.acknowledged} · ดำเนินการแล้ว ${fs.byStatus.resolved}`);
+    const maxC = Math.max(1, ...Object.values(fs.byCat));
+    p2 += FB_CATEGORIES.map(c => printBarRow(c.label, fs.byCat[c.key]+' ข้อความ', fs.byCat[c.key]/maxC*100, PDF.accent)).join('');
+  }
   pages.push(p2);
 
-  // ---------- Page 3: wishlist + comments ----------
   const topWish = s.wishlists.all.slice(0,10);
-  const rankColors = ['#D9A628','#B7B6AA','#B5732E'];
   let p3 = '';
   if(topWish.length){
-    p3 += printSectionHead('quill','#FFF3D6','#92600A','เมนูที่มีผู้เสนอมากที่สุด','รวมทุกหมวดเมนู');
+    p3 += printSectionHead('quill',PDF.warmBg,PDF.warmDark,'เมนูที่มีผู้เสนอมากที่สุด','รวมทุกหมวดเมนู');
     p3 += topWish.map((w,i) => `
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
-        <div style="width:24px;height:24px;border-radius:50%;background:${rankColors[i]||'#5B6B85'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">${i+1}</div>
-        <div style="flex:1; font-size:13.5px; font-weight:600;">${w.label}</div>
-        <div style="font-size:13.5px; font-weight:700; color:#FF6B6B;">×${w.count}</div>
+        <div style="width:24px;height:24px;background:${i===0?PDF.warm:'#fff'};border:1px solid ${i===0?PDF.warm:PDF.accent};color:${i===0?'#4a2a0e':PDF.accentDark};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;">${i+1}</div>
+        <div style="flex:1; font-size:13.5px; font-weight:500;">${esc(w.label)}</div>
+        <div style="font-size:13.5px; font-weight:600; color:${PDF.warmDark};">×${w.count}</div>
       </div>`).join('');
     p3 += `<div style="height:20px;"></div>`;
   }
   if(s.recentComments.length){
-    p3 += printSectionHead('quill','#FFE8E8','#FF6B6B','ข้อเสนอแนะเพิ่มเติมล่าสุด','ข้อ 13');
+    p3 += printSectionHead('quill',PDF.warmBg,PDF.warmDark,'ข้อเสนอแนะเพิ่มเติมล่าสุด','ข้อ 13');
     p3 += s.recentComments.map(r => `
-      <div style="border-left:3px solid #FF6B6B; padding:2px 0 2px 14px; margin-bottom:14px;">
-        <div style="font-size:12px; font-weight:700; color:#4451C7; margin-bottom:2px;">${displayUnit(r)}</div>
-        <div style="font-size:13px; line-height:1.5;">${r.additional_comments}</div>
+      <div style="border-left:2px solid ${PDF.warm}; padding:2px 0 2px 14px; margin-bottom:14px;">
+        <div style="font-size:12px; font-weight:600; color:${PDF.accentDark}; margin-bottom:2px;">${esc(displayUnit(r))}</div>
+        <div style="font-size:13px; line-height:1.5;">${esc(r.additional_comments)}</div>
       </div>`).join('');
   }
   if(p3) pages.push(p3);
 
   const total = pages.length;
   const shells = pages.map((html,i) => printPageShell(html, i+1, total));
-  shells.forEach(s => document.body.appendChild(s));
-
+  shells.forEach(el => document.body.appendChild(el));
   try{
+    if(document.fonts && document.fonts.ready) await document.fonts.ready;
     const canvases = await Promise.all(shells.map(el => html2canvas(el, { scale: 2, backgroundColor: '#FFFFFF', windowWidth: el.scrollWidth, windowHeight: el.scrollHeight })));
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -443,17 +907,15 @@ async function exportPDF(){
       const imgH = canvas.height * pageW / canvas.width;
       if(!firstPage) pdf.addPage();
       firstPage = false;
-      let position = 0;
-      pdf.addImage(imgData, 'PNG', 0, position, pageW, imgH);
+      pdf.addImage(imgData, 'PNG', 0, 0, pageW, imgH);
       let heightLeft = imgH - pageH;
       while(heightLeft > 2){
         pdf.addPage();
-        position = heightLeft - imgH;
-        pdf.addImage(imgData, 'PNG', 0, position, pageW, imgH);
+        pdf.addImage(imgData, 'PNG', 0, heightLeft - imgH, pageW, imgH);
         heightLeft -= pageH;
       }
     });
-    pdf.save(`สรุปผลความพึงพอใจ_${new Date().toLocaleDateString('en-CA')}.pdf`);
+    pdf.save(`สรุปผลความพึงพอใจ_${dash.group==='all'?'ทุกกลุ่ม':groupLabel(dash.group)}_${new Date().toLocaleDateString('en-CA')}.pdf`);
   }catch(e){
     console.error(e);
     alert('สร้าง PDF ไม่สำเร็จ: ' + (e?.message || e));
@@ -463,43 +925,74 @@ async function exportPDF(){
   }
 }
 
-function renderDashboard(){
-  const el = document.getElementById('viewDashboard');
-  if(dash.loading){ el.innerHTML = `<div class="loading">กำลังโหลดข้อมูล…</div>`; return; }
-  if(dash.error){
-    el.innerHTML = `<div class="card"><div class="error">${dash.error}</div><button class="refresh-btn" onclick="loadDashboard()">ลองใหม่</button></div>`;
-    return;
-  }
-  if(dash.responses.length === 0){
-    el.innerHTML = `<div class="card"><div class="empty-state">ยังไม่มีแบบประเมินเข้ามา</div></div>`;
-    return;
-  }
-
-  const dateFilterHtml = `
+/* ---------- render ---------- */
+function filterCardHtml(){
+  const pills = [['today','วันนี้'],['7d','7 วันล่าสุด'],['30d','30 วันล่าสุด'],['all','ทั้งหมด'],['custom','กำหนดเอง']]
+    .map(([k,l]) => `<button class="seg-opt ${dash.dateFilter===k?'active':''}" onclick="setDateFilter('${k}')">${l}</button>`).join('');
+  const groups = GROUPS.map(g => `<button class="seg-opt ${dash.group===g.key?'active':''}" onclick="setGroup('${g.key}')">${g.label}</button>`).join('');
+  return `
     <div class="card">
       <div class="sec-head">
-        <div class="sec-icon" style="background:var(--ivory-dim); color:var(--ink-soft);">${ICONS.chart}</div>
-        <div><div class="sec-title">ช่วงเวลาที่แสดงผล</div></div>
+        <div class="sec-icon" style="background:var(--color-accent-100); color:var(--color-accent-700);">${ICONS.calendar}</div>
+        <div><div class="sec-title">ตัวกรอง</div><div class="sec-sub">ใช้กลุ่มเดียวกับระบบโหวตและกล่องข้อความ</div></div>
       </div>
-      <div class="date-filter">
-        <button class="date-pill ${dash.dateFilter==='today'?'active':''}" onclick="setDateFilter('today')">วันนี้</button>
-        <button class="date-pill ${dash.dateFilter==='7d'?'active':''}" onclick="setDateFilter('7d')">7 วันล่าสุด</button>
-        <button class="date-pill ${dash.dateFilter==='30d'?'active':''}" onclick="setDateFilter('30d')">30 วันล่าสุด</button>
-        <button class="date-pill ${dash.dateFilter==='all'?'active':''}" onclick="setDateFilter('all')">ทั้งหมด</button>
-        <button class="date-pill ${dash.dateFilter==='custom'?'active':''}" onclick="setDateFilter('custom')">กำหนดเอง</button>
-      </div>
+      <div class="filter-lbl">ช่วงเวลา</div>
+      <div class="seg-row">${pills}</div>
       ${dash.dateFilter==='custom' ? `
       <div class="date-custom">
-        <span>จาก</span>
         <input type="date" value="${dash.customFrom}" onchange="setCustomDate('from', this.value)">
         <span>ถึง</span>
         <input type="date" value="${dash.customTo}" onchange="setCustomDate('to', this.value)">
       </div>` : ''}
+      <div class="filter-lbl">กลุ่มจุดบริการ</div>
+      <div class="seg-row" style="margin-bottom:0;">${groups}</div>
     </div>`;
+}
+function feedbackCardHtml(fs){
+  if(fs===null) return `<div class="card"><div class="info-box">โหลดข้อมูลกล่องข้อความไม่สำเร็จ — แสดงเฉพาะผลแบบประเมิน</div></div>`;
+  const maxC = Math.max(1, ...Object.values(fs.byCat));
+  const recent = fs.recent.map(f => `
+    <div class="msg-item">
+      <div class="msg-head">
+        <span class="msg-name">${groupLabel(feedbackGroup(f))} · ${FB_CATEGORIES.find(c=>c.key===f.category)?.label || esc(f.category)}</span>
+        <span class="pill ${f.status}">${fbStatusLabel(f.status)}</span>
+      </div>
+      <div class="msg-meta">${fmtDateTime(f.created_at)}</div>
+      <div class="msg-body" style="margin-top:6px;">${esc(f.message)}</div>
+      ${f.admin_reply ? `<div class="msg-reply"><span class="lbl">คำตอบจากแอดมิน</span>${esc(f.admin_reply)}</div>` : ''}
+    </div>`).join('');
+  return `
+    <div class="card">
+      <div class="sec-head">
+        <div class="sec-icon" style="background:var(--warm-100); color:var(--warm-700);">${ICONS.chat}</div>
+        <div><div class="sec-title">กล่องข้อความแจ้งปัญหา</div><div class="sec-sub">จากหน้าแจ้งปัญหา (rk_feedback) · ${scopeLabel()}</div></div>
+      </div>
+      <div class="stat-row" style="margin-top:0;">
+        <div class="stat-box"><div class="num">${fs.total}</div><div class="lbl">ข้อความทั้งหมด</div></div>
+        <div class="stat-box ${fs.byStatus.new?'warn':''}"><div class="num">${fs.byStatus.new}</div><div class="lbl">รอตรวจสอบ</div></div>
+        <div class="stat-box"><div class="num">${fs.byStatus.acknowledged}</div><div class="lbl">รับทราบแล้ว</div></div>
+        <div class="stat-box"><div class="num">${fs.byStatus.resolved}</div><div class="lbl">ดำเนินการแล้ว</div></div>
+      </div>
+      ${fs.total ? `
+      <div class="filter-lbl">แยกตามหมวดหมู่</div>
+      ${FB_CATEGORIES.map(c => `<div class="fb-cat-row"><span class="n">${c.label}</span><span class="bar"><i style="width:${fs.byCat[c.key]/maxC*100}%; background:var(--color-accent);"></i></span><span class="c">${fs.byCat[c.key]}</span></div>`).join('')}
+      <div class="filter-lbl" style="margin-top:16px;">ข้อความล่าสุด</div>
+      ${recent}` : '<div class="empty-state">ไม่มีข้อความในช่วงเวลา/กลุ่มที่เลือก</div>'}
+      <a class="btn-outline fb-link" href="rk_admin_results.html#feedback">ตอบกลับ / จัดการข้อความในหลังบ้าน ›</a>
+    </div>`;
+}
 
+function renderDashboard(){
+  const el = document.getElementById('viewDashboard');
+  if(dash.loading){ el.innerHTML = `<div class="card"><div class="spinner"></div></div>`; return; }
+  if(dash.error){
+    el.innerHTML = `<div class="card"><div class="error">${esc(dash.error)}</div><button class="btn-outline" onclick="loadDashboard()">ลองใหม่</button></div>`;
+    return;
+  }
   const filtered = getFilteredResponses();
+  const fs = computeFeedbackStats(getFilteredFeedback());
   if(filtered.length === 0){
-    el.innerHTML = dateFilterHtml + `<div class="card"><div class="empty-state">ไม่มีแบบประเมินในช่วงเวลาที่เลือก</div></div>`;
+    el.innerHTML = filterCardHtml() + `<div class="card"><div class="empty-state">ไม่มีแบบประเมินในช่วงเวลา/กลุ่มที่เลือก</div></div>` + feedbackCardHtml(fs);
     return;
   }
   const s = computeStats(filtered);
@@ -507,74 +1000,58 @@ function renderDashboard(){
   const unitRows = s.unitStats.map(u => `
     <div class="unit-row">
       <div class="head">
-        <span class="name">${u.unit === s.bestUnit?.unit ? `<span class="crown">${ICONS.crown}</span>` : ''}${u.short}${u.count ? ` <span class="count">(${u.count} ฉบับ)</span>` : ''}</span>
+        <span class="name">${esc(u.short)}${u.group!=='other'?`<span class="tag">${groupLabel(u.group)}</span>`:''}${u.unit===s.bestUnit?.unit?'<span class="tag best">คะแนนสูงสุด</span>':''}${u.count ? ` <span class="count">(${u.count} ฉบับ)</span>` : ''}</span>
         <span class="val">${u.count?u.avg.toFixed(1):'-'}</span>
       </div>
-      <div class="unit-track"><div class="unit-fill" style="width:${u.count?(u.avg/5*100):2}%; background:${u.count?catColor(u.avg):'var(--ivory-dim)'}"></div></div>
-      ${u.otherNames && u.otherNames.length ? `<div style="font-size:12px;color:var(--ink-soft);margin-top:4px;">ระบุ: ${u.otherNames.join(', ')}</div>` : ''}
+      <div class="bar"><i style="width:${u.count?(u.avg/5*100):0}%; background:${catColor(u.avg)}"></i></div>
+      ${u.otherNames.length ? `<div class="field-hint" style="margin:4px 0 0;">ระบุ: ${esc(u.otherNames.join(', '))}</div>` : ''}
     </div>`).join('');
-
-  function catBarsFor(cats){
-    return cats.map(key => {
-      const c = s.categoryAverages.find(x => x.key === key);
-      return `
-      <div class="cat-row">
-        <div class="cat-head"><span class="name">${c.label}</span><span class="val">${c.avg.toFixed(2)}</span></div>
-        <div class="cat-track"><div class="cat-fill" style="width:${(c.avg/5*100)}%; background:${catColor(c.avg)}"></div></div>
-      </div>`;
-    }).join('');
-  }
-
-  const wishTabs = [{key:'all',label:'ทั้งหมด'}, ...WISH_FIELDS].map(f => `
-    <button class="wish-tab ${dash.wishFilter===f.key?'active':''}" onclick="setWishFilter('${f.key}')">${f.label}</button>
-  `).join('');
+  const catBarsFor = cats => cats.map(c0 => {
+    const c = s.categoryAverages.find(x => x.key === c0.key);
+    return `<div class="cat-row"><div class="cat-head"><span class="name">${c.label}</span><span class="val">${c.avg.toFixed(2)}</span></div><div class="bar"><i style="width:${c.avg/5*100}%; background:${catColor(c.avg)}"></i></div></div>`;
+  }).join('');
+  const wishTabs = [{key:'all',label:'ทั้งหมด'}, ...WISH_FIELDS].map(f => `<button class="seg-opt ${dash.wishFilter===f.key?'active':''}" onclick="setWishFilter('${f.key}')">${f.label}</button>`).join('');
   const activeWish = s.wishlists[dash.wishFilter] || [];
-  const rankClass = i => i===0?'r1':i===1?'r2':i===2?'r3':'';
   const wishHtml = activeWish.length === 0
-    ? `<div style="font-size:14px;color:var(--ink-soft);">ยังไม่มีข้อเสนอในหมวดนี้</div>`
-    : activeWish.map((w,i) => `
-      <div class="wish-item">
-        <div class="wish-rank ${rankClass(i)}">${i+1}</div>
-        <div class="wish-name">${w.label}</div>
-        <div class="wish-count">×${w.count}</div>
-      </div>`).join('');
-
+    ? `<div class="empty-state">ยังไม่มีข้อเสนอในหมวดนี้</div>`
+    : activeWish.map((w,i) => `<div class="wish-item"><div class="wish-rank ${i===0?'r1':''}">${i+1}</div><div class="wish-name">${esc(w.label)}</div><div class="wish-count">×${w.count}</div></div>`).join('');
   const commentsHtml = s.recentComments.length === 0 ? '' : `
     <div class="card">
       <div class="sec-head">
-        <div class="sec-icon" style="background:#FFE8E8; color:var(--l1);">${ICONS.quill}</div>
+        <div class="sec-icon" style="background:var(--warm-100); color:var(--warm-700);">${ICONS.quill}</div>
         <div><div class="sec-title">ข้อ 13 · ข้อเสนอแนะเพิ่มเติมล่าสุด</div></div>
       </div>
-      ${s.recentComments.map(r => `
-        <div class="comment-item">
-          <div class="who">${displayUnit(r)}</div>
-          <div><span class="quote">“</span>${r.additional_comments}</div>
-        </div>`).join('')}
+      ${s.recentComments.map(r => `<div class="comment-item"><div class="who">${esc(displayUnit(r))} · ${fmtDate(r.created_at)}</div>${esc(r.additional_comments)}</div>`).join('')}
     </div>`;
 
-  el.innerHTML = dateFilterHtml + `
+  el.innerHTML = filterCardHtml() + `
     <div class="card">
       <div class="export-row">
-        <button class="export-btn pdf" id="pdfBtn" onclick="exportPDF()">${ICONS.doc} PDF รายงานสรุป</button>
+        <button class="submit-btn" id="pdfBtn" onclick="exportPDF()">${ICONS.doc} PDF รายงานสรุป</button>
+        <button class="btn-outline" onclick="loadDashboard()">↻ รีเฟรช</button>
       </div>
     </div>
-    <div id="reportContent">
+
     <div class="card">
-      <div class="seal-wrap">
-        <div class="seal"><div class="score">${s.overallAvg.toFixed(1)}</div><div class="label">${stampLabel(s.overallAvg)}</div></div>
-        ${s.bestUnit ? `<div class="seal-sub">หน่วยงานยอดเยี่ยม: <strong>${s.bestUnit.short}</strong> (${s.bestUnit.avg.toFixed(1)})</div>` : ''}
+      <div class="overview">
+        <div class="score-seal"><div class="score">${s.overallAvg.toFixed(1)}</div><div class="label">${stampLabel(s.overallAvg)}</div></div>
+        <div class="overview-txt">
+          <div class="t">คะแนนความพึงพอใจโดยรวม</div>
+          <div class="s">${scopeLabel()}</div>
+          ${s.bestUnit ? `<div class="s" style="margin-top:6px;">หน่วยงานคะแนนสูงสุด: <strong>${esc(s.bestUnit.short)}</strong> (${s.bestUnit.avg.toFixed(1)})</div>` : ''}
+        </div>
       </div>
-      <div class="kpi-row">
-        <div class="kpi"><div class="icon">${ICONS.users}</div><div class="num">${s.total}</div><div class="lbl">แบบประเมิน${dash.dateFilter==='all'?'ทั้งหมด':'ในช่วงนี้'}</div></div>
-        <div class="kpi"><div class="icon">${ICONS.star}</div><div class="num">${s.overallAvg.toFixed(1)}</div><div class="lbl">คะแนนเฉลี่ยรวม</div></div>
-        <div class="kpi"><div class="icon">${ICONS.building}</div><div class="num">${s.unitStats.filter(u=>u.count>0).length}/6</div><div class="lbl">หน่วยงานที่ตอบแล้ว</div></div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="num">${s.total}</div><div class="lbl">แบบประเมิน</div></div>
+        <div class="stat-box"><div class="num">${s.overallAvg.toFixed(2)}</div><div class="lbl">คะแนนเฉลี่ยรวม</div></div>
+        <div class="stat-box"><div class="num">${s.unitStats.filter(u=>u.count>0).length}/${s.unitStats.length}</div><div class="lbl">หน่วยงานที่ตอบแล้ว</div></div>
+        ${fs ? `<div class="stat-box ${fs.byStatus.new?'warn':''}"><div class="num">${fs.byStatus.new}</div><div class="lbl">ข้อความรอตรวจสอบ</div></div>` : ''}
       </div>
-      <button class="refresh-btn" onclick="loadDashboard()">↻ รีเฟรชข้อมูล</button>
     </div>
 
     <div class="card">
       <div class="sec-head">
-        <div class="sec-icon" style="background:var(--ivory-dim); color:var(--ink-soft);">${ICONS.chart}</div>
+        <div class="sec-icon" style="background:var(--color-accent-100); color:var(--color-accent-700);">${ICONS.chart}</div>
         <div><div class="sec-title">คะแนนเฉลี่ยแยกตามหน่วยงาน</div></div>
       </div>
       ${unitRows}
@@ -582,34 +1059,42 @@ function renderDashboard(){
 
     <div class="card">
       <div class="sec-head">
-        <div class="sec-icon" style="background:var(--ivory-dim); color:var(--ink-soft);">${ICONS.chart}</div>
+        <div class="sec-icon" style="background:var(--color-accent-100); color:var(--color-accent-700);">${ICONS.chart}</div>
         <div><div class="sec-title">คะแนนเฉลี่ยแยกตามหัวข้อ (ข้อ 1-10)</div></div>
       </div>
       <div class="cat-group">
-        <div class="cat-group-head"><span class="chip" style="background:var(--food-bg); color:var(--food-text);">${ICONS.bowl}</span><span class="lbl">ด้านอาหาร</span></div>
-        ${catBarsFor(FOOD_CATS.map(c=>c.key))}
+        <div class="cat-group-head"><span class="chip-ic" style="background:var(--warm-100); color:var(--warm-700);">${ICONS.bowl}</span>ด้านอาหาร</div>
+        ${catBarsFor(FOOD_CATS)}
       </div>
       <div class="cat-group">
-        <div class="cat-group-head"><span class="chip" style="background:var(--service-bg); color:var(--service-text);">${ICONS.bell}</span><span class="lbl">ด้านการบริการ</span></div>
-        ${catBarsFor(SERVICE_CATS.map(c=>c.key))}
+        <div class="cat-group-head"><span class="chip-ic" style="background:var(--color-accent-100); color:var(--color-accent-700);">${ICONS.bell}</span>ด้านการบริการ</div>
+        ${catBarsFor(SERVICE_CATS)}
       </div>
     </div>
 
+    ${feedbackCardHtml(fs)}
+
     <div class="card">
       <div class="sec-head">
-        <div class="sec-icon" style="background:#FFF3D6; color:#92600A;">${ICONS.quill}</div>
+        <div class="sec-icon" style="background:var(--warm-100); color:var(--warm-700);">${ICONS.quill}</div>
         <div><div class="sec-title">เมนูที่มีผู้เสนอมากที่สุด</div></div>
       </div>
-      <div class="wish-tabs">${wishTabs}</div>
+      <div class="seg-row">${wishTabs}</div>
       ${wishHtml}
     </div>
 
     ${commentsHtml}
-    </div>
   `;
 }
 
 loadDashboard();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch((e) => console.warn('SW register failed:', e));
+  });
+}
 </script>
 </body>
 </html>
