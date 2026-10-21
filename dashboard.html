@@ -710,10 +710,15 @@ function inRange(ts){ const { from, to } = dateBounds(); const t = new Date(ts);
 function getFilteredResponses(){
   return dash.responses.filter(r => inRange(r.created_at) && (dash.group==='all' || groupOfUnit(r.unit)===dash.group));
 }
+// จัดกลุ่มข้อความจาก "หน่วยงาน" ก่อน (เหมือนแบบประเมิน) แล้วค่อยดูจุดบริการ
+// ทุกข้อความต้องตกอยู่ในกลุ่มใดกลุ่มหนึ่งเสมอ ผลรวมทุกกลุ่มจึงเท่ากับ "ทุกกลุ่ม"
+// (เดิมดูจาก location_id อย่างเดียว ข้อความที่ผูกกับจุดบริการรุ่นเก่า เช่น point1/point2 จึงหายไปจากทุกกลุ่ม)
+const GROUP_CODES = ['g1','g2','g3','g4','g5'];
 function feedbackGroup(f){
+  if(UNIT_LOCATION[f.unit]) return UNIT_LOCATION[f.unit];
   if(f.unit === OTHER_UNIT) return 'other';
   const loc = dash.locById[f.location_id];
-  return loc ? loc.code : 'other';
+  return loc && GROUP_CODES.includes(loc.code) ? loc.code : 'other';
 }
 function getFilteredFeedback(){
   if(!dash.feedback) return null;
