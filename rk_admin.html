@@ -566,6 +566,10 @@ body{position:fixed; inset:0; height:auto;}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 9 9 0 0 1-3.3-.6L3 21l1.7-4.1A8.4 8.4 0 1 1 21 11.5Z"/></svg>
     <span>ข้อความ</span>
   </a>
+  <a href="dashboard.html" class="bn-item" id="bn-survey">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8Z"/></svg>
+    <span>ประเมิน</span>
+  </a>
 </div>
 
 <script>
@@ -767,9 +771,9 @@ function renderMenuSets(){
   const dishTabs = Object.keys(DISH_LABELS).map(k => `<button type="button" class="seg-opt ${state.menuDishFilter===k?'active':''}" onclick="setMenuDishFilter('${k}')">${DISH_LABELS[k]}</button>`).join('');
   const filteredSets = state.sets.filter(s => (s.meal_period||'lunch')===state.menuMealFilter && (s.dish_type||'savory')===state.menuDishFilter);
   const cards = filteredSets.map(s => `
-    <div class="item-card" style="cursor:default;">
+    <div class="item-card" style="cursor:default; border:3px solid ${s.active?'#22C55E':'#FF6B6B'}; box-shadow:0 0 0 2px ${s.active?'rgba(34,197,94,0.18)':'rgba(255,107,107,0.18)'};">
       <div class="thumb" ${s.image_url?`style="background-image:url('${s.image_url}')"`:''}>${s.image_url?'':ICONS.image}</div>
-      <div class="cap">เซทที่ ${s.set_no}: ${s.set_name}<div class="sub">${s.active?'แสดงในหน้าโหวต':'ซ่อนอยู่'}</div>
+      <div class="cap">เซทที่ ${s.set_no}: ${s.set_name}<div class="sub" style="font-weight:700; color:${s.active?'#0F9D58':'#D64550'};">${s.active?'● แสดงในหน้าโหวต':'● ซ่อนอยู่'}</div>
         <div style="display:flex; gap:5px; margin-top:8px; flex-wrap:wrap;">
           <button class="btn-small" onclick='openSetModal(${JSON.stringify(s).replace(/'/g,"&apos;")})'>แก้ไข</button>
           <button class="btn-small" onclick="toggleSetActive('${s.id}', ${!s.active})">${s.active?'ซ่อน':'แสดง'}</button>
